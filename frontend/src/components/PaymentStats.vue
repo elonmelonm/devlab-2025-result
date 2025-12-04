@@ -1,7 +1,7 @@
 <template>
   <div class="payment-stats">
     <!-- En-tête des statistiques -->
-    <div class="stats-header">
+    <!-- <div class="stats-header">
       <div class="header-content">
         <h3>Statistiques de paiement</h3>
         <p>Analyse détaillée de vos transactions</p>
@@ -16,11 +16,10 @@
           {{ period.label }}
         </button>
       </div>
-    </div>
+    </div> -->
 
     <!-- Grille des statistiques principales -->
-    <div class="main-stats-grid">
-      <!-- Total des paiements -->
+    <!-- <div class="main-stats-grid">
       <div class="stat-box primary">
         <div class="stat-box-header">
           <div class="stat-icon">
@@ -62,7 +61,6 @@
         </div>
       </div>
 
-      <!-- Volume de transactions -->
       <div class="stat-box success">
         <div class="stat-box-header">
           <div class="stat-icon">
@@ -96,7 +94,6 @@
         </div>
       </div>
 
-      <!-- Montant moyen -->
       <div class="stat-box warning">
         <div class="stat-box-header">
           <div class="stat-icon">
@@ -128,7 +125,6 @@
         </div>
       </div>
 
-      <!-- Taux de réussite -->
       <div class="stat-box info">
         <div class="stat-box-header">
           <div class="stat-icon">
@@ -149,9 +145,8 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <!-- Statistiques détaillées par statut -->
     <div class="status-breakdown">
       <h4>Répartition par statut</h4>
       <div class="status-grid">
@@ -208,8 +203,7 @@
       </div>
     </div>
 
-    <!-- Distribution par devise -->
-    <div class="currency-distribution">
+    <!-- <div class="currency-distribution">
       <h4>Distribution par devise</h4>
       <div class="currency-chart">
         <div
@@ -237,10 +231,10 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Activité récente -->
-    <div class="recent-activity">
+    <!-- <div class="recent-activity">
       <div class="activity-header">
         <h4>Activité récente</h4>
         <button class="btn-view-all">
@@ -267,7 +261,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Graphique circulaire animé -->
     <div class="success-rate-visual">

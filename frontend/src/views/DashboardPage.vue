@@ -247,48 +247,6 @@
             </button>
           </div>
         </div>
-        <PaymentStats :payments="payments" />
-
-        <!-- Filtres -->
-        <transition name="slide">
-          <div v-if="showFilters" class="filters-panel">
-            <div class="filter-group">
-              <label>Statut</label>
-              <select v-model="filterStatus">
-                <option value="">Tous</option>
-                <option value="completed">Complété</option>
-                <option value="pending">En attente</option>
-                <option value="failed">Échoué</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label>Devise</label>
-              <select v-model="filterCurrency">
-                <option value="">Toutes</option>
-                <option value="XAF">XAF</option>
-                <option value="EUR">EUR</option>
-                <option value="USD">USD</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label>Période</label>
-              <select v-model="filterPeriod">
-                <option value="">Toutes</option>
-                <option value="today">Aujourd'hui</option>
-                <option value="week">Cette semaine</option>
-                <option value="month">Ce mois</option>
-              </select>
-            </div>
-            <button class="btn-reset-filters" @click="resetFilters">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polyline points="1 4 1 10 7 10" />
-                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-              </svg>
-              Réinitialiser
-            </button>
-          </div>
-        </transition>
-
         <!-- Table des transactions -->
         <div class="transactions-container">
           <div v-if="filteredPayments.length === 0" class="empty-state">
@@ -478,6 +436,47 @@
             </div>
           </div>
         </div>
+        <PaymentStats :payments="payments" />
+
+        <!-- Filtres -->
+        <transition name="slide">
+          <div v-if="showFilters" class="filters-panel">
+            <div class="filter-group">
+              <label>Statut</label>
+              <select v-model="filterStatus">
+                <option value="">Tous</option>
+                <option value="completed">Complété</option>
+                <option value="pending">En attente</option>
+                <option value="failed">Échoué</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Devise</label>
+              <select v-model="filterCurrency">
+                <option value="">Toutes</option>
+                <option value="XAF">XAF</option>
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Période</label>
+              <select v-model="filterPeriod">
+                <option value="">Toutes</option>
+                <option value="today">Aujourd'hui</option>
+                <option value="week">Cette semaine</option>
+                <option value="month">Ce mois</option>
+              </select>
+            </div>
+            <button class="btn-reset-filters" @click="resetFilters">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+              </svg>
+              Réinitialiser
+            </button>
+          </div>
+        </transition>
       </div>
     </main>
 
@@ -1055,7 +1054,13 @@ export default {
 .balance-section {
   margin-bottom: 30px;
   background: #d4d4d4;
-background: linear-gradient(90deg,rgba(255, 255, 255, 1) 45%, rgba(212, 212, 212, 1) 66%, rgba(0, 90, 180, 1) 100%);  height: 250px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 1) 45%,
+    rgba(212, 212, 212, 1) 66%,
+    rgba(0, 90, 180, 1) 100%
+  );
+  height: 250px;
   border-radius: 40px;
 }
 
