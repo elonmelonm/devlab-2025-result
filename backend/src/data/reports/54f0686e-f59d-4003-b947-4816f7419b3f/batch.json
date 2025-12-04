@@ -1,0 +1,197 @@
+{
+  "batchId": "54f0686e-f59d-4003-b947-4816f7419b3f",
+  "createdAt": "2025-12-04T16:32:33.737Z",
+  "status": "COMPLETED_WITH_ERRORS",
+  "inputFileName": "payment_list.csv",
+  "summary": {
+    "totalTransactions": 13,
+    "successful": 0,
+    "failed": 13,
+    "totalAmount": 60300,
+    "currency": "XOF"
+  },
+  "transactions": [
+    {
+      "txId": "tx-00001",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "3948329914",
+      "devise": "XOF",
+      "montant": 500,
+      "nom_complet": "Boris Avocè",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:32:53.891Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3AM12BP0A8929RAPDJ6AX: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"3948329914\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"500\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Boris Avocè\",\"homeTransactionId\":\"b35211e7-cfdb-4253-946e-76fc963a52d0\",\"transferId\":\"01KBN3AM12BP0A8929RAPDJ6AX\",\"traceId\":\"e324e9dce5ba5bd28c43e25d0e6c6c4b\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:32:33.827Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00002",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "1061395480",
+      "devise": "XOF",
+      "montant": 100,
+      "nom_complet": "Malick Avocè",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:33:13.976Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3B7MCXBRNDZA9H3ST7KXW: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"1061395480\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"100\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Malick Avocè\",\"homeTransactionId\":\"29ae5cdc-3e26-42d2-bb6f-8a85dd80d9ae\",\"transferId\":\"01KBN3B7MCXBRNDZA9H3ST7KXW\",\"traceId\":\"b94c9ee23bc7c2d7c43ec48bf4d651a7\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:32:53.901Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00003",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "7623502870",
+      "devise": "XOF",
+      "montant": 20000,
+      "nom_complet": "Chabi Tchibozo",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:33:34.050Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3BV80HXSK3XDT5PCYQP5A: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"7623502870\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"20000\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Chabi Tchibozo\",\"homeTransactionId\":\"1b0c2acc-dcec-44a6-8a98-3f2ef02c7440\",\"transferId\":\"01KBN3BV80HXSK3XDT5PCYQP5A\",\"traceId\":\"b1019245d65ddab5d42c43c7e9ffbb46\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:33:13.986Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00004",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "2362887061",
+      "devise": "XOF",
+      "montant": 100,
+      "nom_complet": "Judith Hounsa",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:33:54.122Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3CEV79R9QPZXCGT2VYVWG: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"2362887061\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"100\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Judith Hounsa\",\"homeTransactionId\":\"346e08e8-9099-4027-82ea-52a3a64954f6\",\"transferId\":\"01KBN3CEV79R9QPZXCGT2VYVWG\",\"traceId\":\"a54ce1b99a74e67a86bbdd23b25b653e\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:33:34.056Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00005",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "0231397586",
+      "devise": "XOF",
+      "montant": 1000,
+      "nom_complet": "Emile Djegui",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:34:14.201Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3D2ESJVAGZRVDX4F485XD: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"0231397586\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"1000\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Emile Djegui\",\"homeTransactionId\":\"59a4afca-9140-4e63-a3cc-4260d0a682b7\",\"transferId\":\"01KBN3D2ESJVAGZRVDX4F485XD\",\"traceId\":\"bd12020bf5789cb5ae198ad7f8df227b\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:33:54.138Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00006",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "9929404434",
+      "devise": "XOF",
+      "montant": 10000,
+      "nom_complet": "Jacques Gandonou",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:34:34.274Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3DP1Y9CV7Z3D3SWCM8QYY: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"9929404434\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"10000\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Jacques Gandonou\",\"homeTransactionId\":\"71833781-076c-4fc5-a4be-daa479b5c2b9\",\"transferId\":\"01KBN3DP1Y9CV7Z3D3SWCM8QYY\",\"traceId\":\"9f0ea41b9489683dc135b75326f4a349\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:34:14.207Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00007",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "8884191054",
+      "devise": "XOF",
+      "montant": 20000,
+      "nom_complet": "Abdou Kpangon",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:34:54.341Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3E9N8BAT37YAHSH0AXZ98: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"8884191054\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"20000\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Abdou Kpangon\",\"homeTransactionId\":\"34721ccb-3e7e-4d58-a2e1-14c2b346d48c\",\"transferId\":\"01KBN3E9N8BAT37YAHSH0AXZ98\",\"traceId\":\"72740d71e3688959d59b4f233d243e20\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:34:34.280Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00008",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "8128829241",
+      "devise": "XOF",
+      "montant": 5000,
+      "nom_complet": "Donatien Fagbemi",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:35:14.415Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3EX8CPY0BYH8EW2Y0Q3JN: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"8128829241\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"5000\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Donatien Fagbemi\",\"homeTransactionId\":\"62145d43-3f35-42a3-be3c-3eecc04f80d4\",\"transferId\":\"01KBN3EX8CPY0BYH8EW2Y0Q3JN\",\"traceId\":\"601ce62fae58d7287ebaa251d5142807\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:34:54.349Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00009",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "6934235077",
+      "devise": "XOF",
+      "montant": 500,
+      "nom_complet": "Sylvie Lokossou",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:35:34.491Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3FGVPPGSQHBD1ZQTY546Q: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"6934235077\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"500\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Sylvie Lokossou\",\"homeTransactionId\":\"080cde01-4fe4-4d30-8d94-83634e7ce8de\",\"transferId\":\"01KBN3FGVPPGSQHBD1ZQTY546Q\",\"traceId\":\"db6138b6807869824deec29a8aeb25d4\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:35:14.423Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00010",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "9368482395",
+      "devise": "XOF",
+      "montant": 100,
+      "nom_complet": "Chabi Ahouansou",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:35:54.569Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3G4EZ34DNNHSV3ZXY9AMR: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"9368482395\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"100\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Chabi Ahouansou\",\"homeTransactionId\":\"0d9e0c68-abd0-4ffd-be45-cdcae4a8e399\",\"transferId\":\"01KBN3G4EZ34DNNHSV3ZXY9AMR\",\"traceId\":\"d07e4468afcfb2c843b0e911ed265aa6\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:35:34.496Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00011",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "8128829241",
+      "devise": "XOF",
+      "montant": 2500,
+      "nom_complet": "Flora Adjovi",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:36:14.640Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3GR2D4T4JB9JKEW35G9NX: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"8128829241\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"2500\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Flora Adjovi\",\"homeTransactionId\":\"01a921d7-16e6-45a0-b56b-e001cda3c576\",\"transferId\":\"01KBN3GR2D4T4JB9JKEW35G9NX\",\"traceId\":\"714a880350576810c43654bf856cf207\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:35:54.574Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00012",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "1226998969",
+      "devise": "XOF",
+      "montant": 500,
+      "nom_complet": "Catherine Yayi",
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:36:34.712Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "{\"message\":\"Error resolving payee for transfer 01KBN3HBNMY94GRNTJ8GW298C9: getaddrinfo EAI_AGAIN ml-testing-toolkit\",\"transferState\":{\"from\":{\"displayName\":\"GOV_PAYMENT\",\"idType\":\"MSISDN\",\"idValue\":\"22900000000\"},\"to\":{\"idType\":\"PERSONAL_ID\",\"idValue\":\"1226998969\"},\"amountType\":\"SEND\",\"currency\":\"XOF\",\"amount\":\"500\",\"transactionType\":\"TRANSFER\",\"note\":\"Pension pour Catherine Yayi\",\"homeTransactionId\":\"8596cd70-55a4-49e7-812b-8a730531ee30\",\"transferId\":\"01KBN3HBNMY94GRNTJ8GW298C9\",\"traceId\":\"4fbee0a1d7588a8c73ce8816c0699868\",\"currentState\":\"ERROR_OCCURRED\",\"initiatedTimestamp\":\"2025-12-04T16:36:14.644Z\",\"direction\":\"OUTBOUND\",\"lastError\":{\"httpStatusCode\":500}},\"statusCode\":\"500\"}"
+      }
+    },
+    {
+      "txId": "tx-00013",
+      "type_id": null,
+      "valeur_id": null,
+      "devise": null,
+      "montant": null,
+      "nom_complet": null,
+      "status": "FAILED",
+      "processedAt": "2025-12-04T16:36:34.712Z",
+      "mojaloop": {
+        "status": "FAILED",
+        "errorDescription": "Cannot read properties of null (reading 'toString')"
+      }
+    }
+  ]
+}
