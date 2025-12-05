@@ -29,6 +29,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #F8F9FA;
+    margin: 0px;
+  height: 100vh;
+  /* overflow: hidden; */
 }
 
 button {
@@ -49,11 +52,11 @@ input, select, textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #00478F;
+  background: #575757;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #003366;
+  background: #202020;
 }
 </style>
