@@ -24,7 +24,7 @@
           </svg>
         </div>
         <div class="header-info">
-          <h1>MassPay<span class="highlight">Pro</span></h1>
+          <h1>Open<span class="highlight">Pay</span></h1>
           <p>Tableau de bord</p>
         </div>
       </div>

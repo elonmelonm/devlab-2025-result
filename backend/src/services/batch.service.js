@@ -234,7 +234,7 @@ module.exports = {
 
         return cleanedBatch;
     },
-
+    
     // ════════════════════════════════════════════════════════════
     // 3. PROCESS BATCH (Étape 3 - Traitement Mojaloop)
     // ════════════════════════════════════════════════════════════
@@ -365,24 +365,54 @@ module.exports = {
         const initialPath = path.join(batchDir, 'batch.initial.json');
 
         let batchData = {};
+        let status = "UNKNOWN";
 
         // Charger les données selon la disponibilité
         if (fs.existsSync(resultPath)) {
             batchData = JSON.parse(fs.readFileSync(resultPath));
+            status = batchData.status;
         } else if (fs.existsSync(cleanedPath)) {
             batchData = JSON.parse(fs.readFileSync(cleanedPath));
+            status = "VALIDATED";
         } else if (fs.existsSync(initialPath)) {
             batchData = JSON.parse(fs.readFileSync(initialPath));
+            status = "UPLOADED";
+        }
+
+        // Normalisation des données
+        const normalizedData = {
+            batchId: batchData.batchId || batchId,
+            status: status,
+            createdAt: batchData.createdAt || new Date().toISOString(),
+            summary: batchData.summary || {},
+            payments: [], // Toujours retourner un tableau
+            rejectedPayments: [], // Toujours retourner un tableau
+            reportUrl: batchData.reportUrl || null
+        };
+
+        // Ajouter les transactions selon le type de batch
+        if (batchData.transactions) {
+            normalizedData.payments = batchData.transactions.map(tx => ({
+                ...tx,
+                amount: tx.montant, // Standardiser le nom
+                currency: tx.devise,
+                idType: tx.type_id,
+                idValue: tx.valeur_id,
+                fullName: tx.nom_complet
+            }));
+        } else if (batchData.transactions) {
+            normalizedData.payments = batchData.transactions;
         }
 
         // Ajouter les transactions rejetées si disponibles
         if (fs.existsSync(rejectedPath)) {
             const rejectedData = JSON.parse(fs.readFileSync(rejectedPath));
-            batchData.rejectedTransactions = rejectedData.rejectedTransactions;
+            normalizedData.rejectedPayments = rejectedData.rejectedTransactions || [];
         }
 
-        return batchData;
-    },
+        return normalizedData;
+    }
+,
 
     // ════════════════════════════════════════════════════════════
     // 6. RETRY FAILED
