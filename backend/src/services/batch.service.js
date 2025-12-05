@@ -474,7 +474,7 @@ module.exports = {
     },
 
     // ════════════════════════════════════════════════════════════
-    // 7. GENERATE REPORT PDF
+    // 7. GENERATE REPORT PDF (Version améliorée avec transactions rejetées)
     // ════════════════════════════════════════════════════════════
     async generateReportPdf(batch, outputPath, batchId) {
         return new Promise((resolve, reject) => {
@@ -509,36 +509,140 @@ module.exports = {
 
                 doc.text(`Lignes valides : ${batch.summary.validRows}`, 320, summaryY + 25);
                 doc.text(`Lignes rejetées : ${batch.summary.rejectedRows}`, 320, summaryY + 42);
-                doc.text(`Montant total : ${batch.summary.totalAmount} XOF`, 320, summaryY + 59);
+                doc.text(`Montant total : ${batch.summary.totalAmount || 0} XOF`, 320, summaryY + 59);
 
                 doc.y = summaryBoxY + summaryBoxHeight + 20;
 
-                // Tableau des transactions
-                doc.fontSize(14).fillColor("#0057D9").font('Helvetica-Bold')
-                    .text("Détails des transactions", 40, doc.y);
-                doc.font('Helvetica');
+                // ════════════════════════════════════════════════════════════
+                // SECTION 1 : TRANSACTIONS TRAITÉES (SUCCESS + FAILED)
+                // ════════════════════════════════════════════════════════════
+                if (batch.transactions && batch.transactions.length > 0) {
+                    doc.fontSize(14).fillColor("#0057D9").font('Helvetica-Bold')
+                        .text("Détails des transactions traitées", 40, doc.y);
+                    doc.font('Helvetica');
 
-                doc.moveDown();
+                    doc.moveDown();
 
-                const transactionsTable = {
-                    headers: ['Tx ID', 'Nom complet', 'Montant', 'Statut'],
-                    rows: batch.transactions.map(tx => [
-                        tx.txId,
-                        tx.nom_complet || 'N/A',
-                        `${tx.montant} XOF`,
-                        tx.status === 'SUCCESS' ? '✅ Succès' : '❌ Échec'
-                    ])
-                };
+                    const transactionsTable = {
+                        headers: ['Tx ID', 'Nom complet', 'Montant', 'Statut'],
+                        rows: batch.transactions.map(tx => [
+                            tx.txId || 'N/A',
+                            tx.nom_complet || 'N/A',
+                            `${tx.montant} XOF`,
+                            tx.status === 'SUCCESS' ? '✅ Succès' : '❌ Échec'
+                        ])
+                    };
 
-                doc.table(transactionsTable, {
-                    prepareHeader: () => doc.font('Helvetica-Bold').fontSize(10),
-                    prepareRow: () => doc.font('Helvetica').fontSize(8)
+                    doc.table(transactionsTable, {
+                        prepareHeader: () => doc.font('Helvetica-Bold').fontSize(10),
+                        prepareRow: () => doc.font('Helvetica').fontSize(8),
+                        columnsSize: [80, 180, 80, 80]
+                    });
+
+                    doc.moveDown(2);
+                }
+
+                // ════════════════════════════════════════════════════════════
+                // SECTION 2 : TRANSACTIONS REJETÉES (VALIDATION)
+                // ════════════════════════════════════════════════════════════
+                const batchDir = path.join(__dirname, '../data/reports', batchId);
+                const rejectedPath = path.join(batchDir, 'batch.rejected.json');
+
+                if (fs.existsSync(rejectedPath)) {
+                    const rejectedData = JSON.parse(fs.readFileSync(rejectedPath));
+
+                    if (rejectedData.rejectedTransactions && rejectedData.rejectedTransactions.length > 0) {
+
+                        // Vérifier s'il faut créer une nouvelle page
+                        if (doc.y > 600) {
+                            doc.addPage();
+                        }
+
+                        doc.fontSize(14).fillColor("#D92D20").font('Helvetica-Bold')
+                            .text("Transactions rejetées lors de la validation", 40, doc.y);
+                        doc.font('Helvetica').fillColor("black");
+
+                        doc.moveDown();
+
+                        // Créer le tableau des rejets
+                        const rejectedTable = {
+                            headers: ['Ligne', 'Nom', 'ID', 'Montant', 'Motifs de rejet'],
+                            rows: rejectedData.rejectedTransactions.map(tx => {
+                                const rawData = tx.rawData || {};
+                                const reasons = tx.reasons || [];
+
+                                // Formater les motifs de manière claire
+                                const formattedReasons = reasons.map(r => `• ${r}`).join('\n');
+
+                                return [
+                                    `L${tx.lineNumber}`,
+                                    rawData.nom_complet || 'N/A',
+                                    rawData.valeur_id || 'N/A',
+                                    rawData.montant ? `${rawData.montant} ${rawData.devise || ''}` : 'N/A',
+                                    formattedReasons || 'Non spécifié'
+                                ];
+                            })
+                        };
+
+                        doc.table(rejectedTable, {
+                            prepareHeader: () => doc.font('Helvetica-Bold').fontSize(9),
+                            prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+                                doc.font('Helvetica').fontSize(7);
+                                // Colorer en rouge clair les lignes rejetées
+                                if (indexColumn === 0) {
+                                    doc.addBackground(rectRow, '#FEE2E2', 0.3);
+                                }
+                            },
+                            columnsSize: [35, 100, 70, 65, 250]
+                        });
+
+                        doc.moveDown();
+
+                        // Ajouter un encadré récapitulatif des erreurs
+                        doc.fontSize(11).fillColor("#D92D20").font('Helvetica-Bold')
+                            .text(`Total rejeté : ${rejectedData.totalRejected} transaction(s)`, 40, doc.y);
+                        doc.font('Helvetica').fillColor("black");
+
+                        doc.moveDown();
+                    }
+                }
+
+                // ════════════════════════════════════════════════════════════
+                // SECTION 3 : LÉGENDE DES ERREURS COURANTES
+                // ════════════════════════════════════════════════════════════
+                if (doc.y > 650) {
+                    doc.addPage();
+                }
+
+                doc.fontSize(12).fillColor("#0057D9").font('Helvetica-Bold')
+                    .text("Légende des erreurs de validation", 40, doc.y);
+                doc.font('Helvetica').fillColor("black").fontSize(9);
+
+                doc.moveDown(0.5);
+
+                const errorLegend = [
+                    { code: "type_id", desc: "Le type d'identifiant doit être exactement 'PERSONAL_ID'" },
+                    { code: "valeur_id", desc: "L'identifiant doit contenir exactement 10 chiffres numériques" },
+                    { code: "devise", desc: "La devise doit être 'XOF'" },
+                    { code: "montant", desc: "Le montant doit être un nombre positif" },
+                    { code: "nom_complet", desc: "Le nom complet ne peut pas être vide" }
+                ];
+
+                errorLegend.forEach(error => {
+                    doc.fillColor("#D92D20").text(`• ${error.code} : `, 50, doc.y, { continued: true })
+                        .fillColor("black").text(error.desc);
+                    doc.moveDown(0.3);
                 });
 
                 // Footer
                 const footerY = doc.page.height - 60;
                 doc.fontSize(9).fillColor("gray");
-                doc.text("Généré automatiquement par la plateforme DEVLAB 2025", 40, footerY);
+                doc.text("Généré automatiquement par la plateforme DEVLAB 2025", 40, footerY, {
+                    align: 'center'
+                });
+                doc.text(`Date de génération : ${new Date().toLocaleString('fr-FR')}`, 40, footerY + 12, {
+                    align: 'center'
+                });
 
                 doc.end();
                 stream.on('finish', resolve);
