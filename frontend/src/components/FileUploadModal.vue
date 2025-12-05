@@ -1,7 +1,7 @@
 <template>
   <transition name="modal">
     <div v-if="show" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-container">
+      <div class="modal-container" v-if="closed">
         <button class="modal-close" @click="closeModal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -251,6 +251,7 @@ export default {
   emits: ["close", "upload-complete", "upload-success", "upload-error"],
   data() {
     return {
+      closed:true,
       showHeader:true,
       selectedFile: null,
       uploadProgress: 0,
@@ -347,6 +348,9 @@ export default {
       this.uploadProgress = 0;
       this.showError = false;
       this.uploadError = "";
+
+      this.$emit('file-selected', this.selectedFile)
+
 
       const formData = new FormData();
       formData.append("file", this.selectedFile);

@@ -499,6 +499,7 @@
     <FileUploadModal
       :show="showUploadModal"
       @close="showUploadModal = false"
+      @file-selected= "handleUploadComplete"
       @upload-complete="handleUploadComplete"
     />
 
@@ -568,6 +569,7 @@ export default {
     };
   },
   computed: {
+
     totalPayments() {
       return this.payments.length;
     },
