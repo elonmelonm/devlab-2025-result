@@ -273,33 +273,47 @@ export default {
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     },
     async uploadFile() {
-      if (!this.selectedFile) return
+      if (!this.selectedFile) {
+        this.showError = true;
+        this.uploadError = 'Veuillez sélectionner un fichier';
+        return;
+      }
 
-      this.uploading = true
-      this.uploadProgress = 0
+      this.uploading = true;
+      this.loading = true;
+      this.uploadProgress = 0;
+      this.showError = false;
+      this.uploadError = '';
+
+      const formData = new FormData();
+      formData.append('file', this.selectedFile);
 
       try {
         const onUploadProgress = (progressEvent) => {
           this.uploadProgress = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
-          )
-        }
+          );
+        };
 
         // Appel au service API pour uploader le fichier
-        const response = await api.uploadFile(this.selectedFile, onUploadProgress)
+        const response = await api.uploadFile(this.selectedFile, onUploadProgress);
         
-        // Si l'upload est réussi, vérifier si on doit afficher le loader
-        if (response && response.extractInitial) {
-          this.batchId = response.batchId
-          this.loading = true
+        // Si l'upload est réussi
+        if (response && response.data) {
+          this.batchId = response.data.batchId || response.data.id;
           
-          // Écouter les mises à jour de statut du batch
-          this.pollBatchStatus()
-        } else if (response && response.success) {
-          this.$emit('upload-success', response.data)
-          this.closeModal()
+          // Si le backend indique que le traitement est en cours
+          if (response.data.message && response.data.message.includes('en cours')) {
+            this.loading = true;
+            this.pollBatchStatus();
+          } else if (response.data.success) {
+            this.$emit('upload-success', response.data);
+            this.transferCompleted = true;
+          } else {
+            throw new Error(response.data.message || 'Réponse inattendue du serveur');
+          }
         } else {
-          throw new Error(response?.message || 'Erreur lors de l\'upload du fichier')
+          throw new Error('Réponse invalide du serveur');
         }
       } catch (error) {
         console.error('Erreur lors de l\'upload:', error)
@@ -309,45 +323,57 @@ export default {
       }
     },
     async pollBatchStatus() {
-      if (!this.batchId) return
+      if (!this.batchId) {
+        this.loading = false;
+        return;
+      }
       
       try {
         const checkStatus = async () => {
-          const response = await api.getBatch(this.batchId)
-          
-          // Mettre à jour la progression en fonction du statut
-          this.updateProgressFromStatus(response.status)
-          
-          // Si le traitement est terminé
-          if (response.status === 'COMPLETED' || response.status === 'COMPLETED_WITH_ERRORS' || response.status === 'FAILED') {
-            this.loading = false
-            this.transferCompleted = true
+          try {
+            const response = await api.getBatch(this.batchId);
             
-            // Mettre à jour l'URL du rapport si disponible dans la réponse
-            if (response.reportUrl) {
-              this.reportUrl = response.reportUrl
+            // Mettre à jour la progression en fonction du statut
+            this.updateProgressFromStatus(response.data?.status || response.status);
+            
+            // Si le traitement est terminé
+            const status = response.data?.status || response.status;
+            if (['COMPLETED', 'COMPLETED_WITH_ERRORS', 'FAILED', 'VALIDATED', 'PROCESSED'].includes(status)) {
+              this.loading = false;
+              this.transferCompleted = true;
+              
+              // Mettre à jour l'URL du rapport si disponible dans la réponse
+              if (response.data?.reportUrl || response.reportUrl) {
+                this.reportUrl = response.data?.reportUrl || response.reportUrl;
+              }
+              
+              // Émettre l'événement avec les données de la réponse
+              this.$emit('upload-complete', response.data?.payments || response.payments || []);
+              
+              return;
             }
             
-            // Émettre l'événement avec les données de la réponse
-            this.$emit('upload-complete', response.payments || [])
-            
-            // Ne pas fermer automatiquement, laisser l'utilisateur voir le message de succès
-            // et télécharger le rapport si nécessaire
-            return
+            // Si le statut indique que le traitement est toujours en cours
+            if (this.loading) {
+              setTimeout(checkStatus, 2000);
+            }
+          } catch (error) {
+            console.error('Erreur lors de la vérification du statut:', error);
+            this.loading = false;
+            this.showError = true;
+            this.uploadError = 'Erreur lors de la vérification du statut du traitement';
+            this.$emit('upload-error', this.uploadError);
           }
-          
-          // Sinon, continuer à vérifier toutes les 2 secondes
-          if (this.loading) {
-            setTimeout(checkStatus, 2000)
-          }
-        }
+        };
         
         // Démarrer la vérification du statut
-        checkStatus()
+        checkStatus();
       } catch (error) {
-        console.error('Erreur lors de la vérification du statut:', error)
-        this.loading = false
-        this.$emit('upload-error', 'Erreur lors du suivi du traitement')
+        console.error('Erreur lors de l\'initialisation du suivi:', error);
+        this.loading = false;
+        this.showError = true;
+        this.uploadError = 'Erreur lors du démarrage du suivi du traitement';
+        this.$emit('upload-error', this.uploadError);
       }
     },
     
