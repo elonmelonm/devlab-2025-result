@@ -141,7 +141,23 @@
               </div>
             </div>
           </div>
-          <div class="balance-card2"></div>
+          <div class="balance-card2">
+            <div class="icon-container">
+              <!-- Icône 1: Elderly Woman -->
+              <span ref="icon1" class="material-symbols-outlined morph-icon">
+                elderly_woman
+              </span>
+
+              <!-- Icône 2: Credit Score -->
+              <span ref="icon2" class="material-symbols-outlined morph-icon">
+                credit_score
+              </span>
+
+              <span ref="icon3" class="material-symbols-outlined morph-icon">
+                heart_smile
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -521,6 +537,7 @@
 <script>
 import FileUploadModal from "@/components/FileUploadModal.vue";
 import PaymentStats from "@/components/PaymentStats.vue";
+import { gsap } from "gsap";
 
 export default {
   name: "DashboardPage",
@@ -634,11 +651,116 @@ export default {
 
     // Fermer le menu utilisateur en cliquant ailleurs
     document.addEventListener("click", this.handleClickOutside);
+    this.$nextTick(() => {
+      // console.log("Diamond:", this.$refs.diamond);
+      // console.log("Lightning:", this.$refs.lightning);
+
+      if (this.$refs.icon1 && this.$refs.icon2 && this.$refs.icon3) {
+        console.log("Les deux éléments sont trouvés ✅");
+        this.startMorphAnimation();
+      } else {
+        console.error("❌ Élément manquant!");
+      }
+    });
   },
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
+    gsap.killTweensOf(this.$refs.diamond);
   },
   methods: {
+    startMorphAnimation() {
+  const icon1 = this.$refs.icon1; // elderly_woman
+  const icon2 = this.$refs.icon2; // credit_score
+  const icon3 = this.$refs.icon3; // heart_smile
+
+  if (!icon1 || !icon2 || !icon3) {
+    console.error("Icônes non trouvées");
+    return;
+  }
+
+  // 🔥 États initiaux: Seule icon1 est visible
+  gsap.set(icon1, {
+    opacity: 1,
+    scale: 1,
+    rotation: 0,
+    transformOrigin: "50% 50%",
+  });
+
+  gsap.set(icon2, {
+    opacity: 0,
+    scale: 0.8,
+    rotation: -30,
+    transformOrigin: "50% 50%",
+  });
+
+  gsap.set(icon3, {
+    opacity: 0,
+    scale: 0.8,
+    rotation: -60,
+    transformOrigin: "50% 50%",
+  });
+
+  // Timeline d'animation
+  const tl = gsap.timeline({
+    repeat: -1,
+    repeatDelay: 0.3,
+  });
+
+  // 1️⃣ elderly_woman → credit_score
+  tl.to(icon1, {
+    opacity: 0,
+    scale: 0.8,
+    rotation: 180,
+    duration: 1,
+    ease: "expo.inOut",
+  })
+  .to(icon2, {
+    opacity: 1,
+    scale: 1,
+    rotation: 0,
+    duration: 1,
+    ease: "expo.inOut",
+  }, "<")
+
+  // Pause
+  .to({}, { duration: 0.8 })
+
+  // 2️⃣ credit_score → heart_smile
+  .to(icon2, {
+    opacity: 0,
+    scale: 0.8,
+    rotation: 180,
+    duration: 1,
+    ease: "expo.inOut",
+  })
+  .to(icon3, {
+    opacity: 1,
+    scale: 1,
+    rotation: 0,
+    duration: 1,
+    ease: "expo.inOut",
+  }, "<")
+
+  // Pause
+  .to({}, { duration: 0.8 })
+
+  // 3️⃣ heart_smile → elderly_woman (retour au début)
+  .to(icon3, {
+    opacity: 0,
+    scale: 0.8,
+    rotation: 180,
+    duration: 1,
+    ease: "expo.inOut",
+  })
+  .to(icon1, {
+    opacity: 1,
+    scale: 1,
+    rotation: 360, // Tour complet
+    duration: 1,
+    ease: "expo.inOut",
+  }, "<");
+},
+
     handleClickOutside(event) {
       const userMenu = this.$el.querySelector(".user-menu");
       if (userMenu && !userMenu.contains(event.target)) {
@@ -1052,23 +1174,18 @@ export default {
 /* Section solde */
 .balance-section {
   margin-bottom: 30px;
-  background: #d4d4d4;
-  background: linear-gradient(
+  background: transparent;
+  /* background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 1) 45%,
     rgba(212, 212, 212, 1) 66%,
     rgba(0, 90, 180, 1) 100%
-  );
+  ); */
   height: 250px;
   border-radius: 40px;
 }
 
 .balance-card {
-  /* background: linear-gradient(
-    135deg,
-    var(--primary-blue) 0%,
-    var(--primary-blue-light) 100%
-  ); */
   border-radius: 24px;
   width: 100%;
   height: 100%;
@@ -1078,11 +1195,29 @@ export default {
   position: relative;
   overflow: hidden;
   display: flex;
+}
+
+/* Image de fond avec opacité */
+.balance-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: url(@/assets/2.jpg);
   background-attachment: fixed;
-  background-position: 90% 45%;
-  background-size: 5636px 3758px;
+  background-position: 45% 75%;
+  background-size: 2036px 958px;
   background-repeat: no-repeat;
+  opacity: 0.6; 
+  z-index: 0;
+}
+
+/* Assurez-vous que le contenu soit au-dessus */
+.balance-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* .balance-card::before {
@@ -1110,16 +1245,39 @@ export default {
 }
 
 .balance-card2 {
-  /* background-color: #ef4444; */
-  width: 50%;
-  height: 100%;
-  background-image: url(@/assets/1.png);
-  background-attachment: fixed;
-  background-position: 90% 45%;
-  background-size: 512px 358px;
-  background-repeat: no-repeat;
+  display: inline-block;
 }
 
+.icon-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.morph-icon {
+  position: absolute;
+  font-size: 180px;
+  margin-left: 400px;
+
+  /* Gradient coloré */
+  background: linear-gradient(135deg, hsla(210, 100%, 40%, 1) 0%, hsla(273, 60%, 73%, 1) 78%, hsla(47, 81%, 56%, 1) 100%);
+  /* background: linear-gradient(135deg, #ff8709 0%, #f7bdf8 100%); */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  /* Support pour les navigateurs qui ne supportent pas background-clip */
+  color: #ff8709;
+}
+
+/* Style des icônes Material Symbols */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 1, /* Icône remplie */ "wght" 400,
+    /* Épaisseur normale */ "GRAD" 0, /* Gradient normal */ "opsz" 48; /* Taille optique */
+}
 /* .balance-card2 img{
     width: 300px;
     height: 200px;
@@ -1152,7 +1310,7 @@ export default {
 
 .balance-icon span {
   font-size: 50px;
-  color: #e5b919 ;
+  color: #ffffff;
 }
 
 .balance-info {
@@ -1971,6 +2129,17 @@ input[type="checkbox"] {
 .toast-leave-to {
   opacity: 0;
   transform: translateX(100px);
+}
+
+#svg-stage {
+  width: 60%;
+  max-height: 60vh;
+  max-width: 500px;
+  overflow: visible;
+}
+
+#gradient {
+  height: 0;
 }
 
 /* ========== RESPONSIVE ========== */

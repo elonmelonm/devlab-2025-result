@@ -49,7 +49,7 @@
             </svg>
           </div>
         </div>
-        <h1 class="app-title">MassPay<span class="highlight">Pro</span></h1>
+        <h1 class="app-title">Open<span class="highlight">Pay</span></h1>
         <p class="app-subtitle">Plateforme de paiement de masse intelligente</p>
       </div>
 
@@ -98,7 +98,7 @@
                 required
                 :disabled="loading"
               />
-              <button
+              <!-- <button
                 type="button"
                 class="toggle-password"
                 @click="showPassword = !showPassword"
@@ -124,7 +124,7 @@
                   />
                   <line x1="1" y1="1" x2="23" y2="23" />
                 </svg>
-              </button>
+              </button> -->
             </div>
           </div>
 
@@ -418,12 +418,15 @@ export default {
   font-weight: 700;
   color: #000000;
   margin: 0 0 8px 0;
+  text-align: center;
 }
 
 .form-header p {
   font-size: 15px;
   color: #666666;
   margin: 0;
+    text-align: center;
+
 }
 
 .login-form {
@@ -459,6 +462,7 @@ export default {
   border: 2px solid #e0e0e0;
   border-radius: 12px;
   font-size: 15px;
+  width: 100%;
   font-family: inherit;
   transition: all 0.3s ease;
   background: #ffffff;
