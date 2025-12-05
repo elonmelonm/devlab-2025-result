@@ -106,98 +106,6 @@ function validateTransaction(row, lineNumber) {
     };
 }
 
-// Cache pour suivre l'état des batches
-const batchStatusCache = new Map();
-
-// Mettre à jour l'état d'un batch dans le cache
-function updateBatchStatus(batchId, status, progress = 0, message = '') {
-    batchStatusCache.set(batchId, {
-        batchId,
-        status,
-        progress,
-        timestamp: new Date().toISOString(),
-        message
-    });
-}
-
-// Vérifier l'état d'un batch
-async function checkBatchStatus(batchId) {
-    const batchDir = path.join(__dirname, '../data/reports', batchId);
-    
-    // Vérifier si le dossier du batch existe
-    if (!fs.existsSync(batchDir)) {
-        throw new Error('Batch non trouvé');
-    }
-
-    // Vérifier les fichiers d'état
-    const initialPath = path.join(batchDir, 'batch.initial.json');
-    const cleanedPath = path.join(batchDir, 'batch.cleaned.json');
-    const resultPath = path.join(batchDir, 'batch.result.json');
-
-    let status = 'UNKNOWN';
-    let progress = 0;
-    let message = '';
-    let processed = 0;
-    let total = 0;
-
-    if (fs.existsSync(initialPath)) {
-        const initialData = JSON.parse(fs.readFileSync(initialPath, 'utf8'));
-        total = initialData.transactions?.length || 0;
-        
-        if (fs.existsSync(cleanedPath)) {
-            const cleanedData = JSON.parse(fs.readFileSync(cleanedPath, 'utf8'));
-            const validCount = cleanedData.transactions?.length || 0;
-            
-            if (fs.existsSync(resultPath)) {
-                const resultData = JSON.parse(fs.readFileSync(resultPath, 'utf8'));
-                const successCount = resultData.transactions?.filter(t => t.status === 'SUCCESS').length || 0;
-                const failedCount = resultData.transactions?.filter(t => t.status === 'FAILED').length || 0;
-                
-                processed = successCount + failedCount;
-                progress = total > 0 ? Math.round((processed / total) * 100) : 0;
-                
-                if (resultData.status === 'COMPLETED') {
-                    status = 'COMPLETED';
-                    message = `Traitement terminé : ${successCount} succès, ${failedCount} échecs`;
-                } else if (resultData.status === 'PARTIALLY_COMPLETED') {
-                    status = 'PARTIALLY_COMPLETED';
-                    message = `Traitement partiel : ${successCount} succès, ${failedCount} échecs`;
-                } else {
-                    status = 'PROCESSING';
-                    message = `Traitement en cours : ${processed}/${total} (${progress}%)`;
-                }
-            } else {
-                status = 'VALIDATED';
-                progress = 30; // Validation terminée, en attente de traitement
-                message = `Validation terminée : ${validCount} transactions valides`;
-                processed = validCount;
-            }
-        } else {
-            status = 'VALIDATING';
-            progress = 10; // Début de la validation
-            message = 'Validation du fichier en cours...';
-        }
-    } else {
-        status = 'UPLOADED';
-        progress = 5; // Fichier uploadé, validation pas encore commencée
-        message = 'Fichier reçu, en attente de validation...';
-    }
-
-    // Mettre à jour le cache
-    const statusData = {
-        batchId,
-        status,
-        progress,
-        processed,
-        total,
-        message,
-        timestamp: new Date().toISOString()
-    };
-    
-    batchStatusCache.set(batchId, statusData);
-    return statusData;
-}
-
 module.exports = {
 
     // ════════════════════════════════════════════════════════════
@@ -284,19 +192,12 @@ module.exports = {
             }
         });
 
-        // Mettre à jour le statut de validation
-        const validationStatus = validTransactions.length > 0 ? "VALIDATED" : "ALL_REJECTED";
-        updateBatchStatus(batchId, validationStatus, 30, 
-            validationStatus === "VALIDATED" 
-                ? `${validTransactions.length} transactions valides`
-                : 'Aucune transaction valide');
-
         // Sauvegarder batch.cleaned.json (transactions valides)
         const cleanedBatch = {
             batchId,
             createdAt: initialBatch.createdAt,
             validatedAt: new Date().toISOString(),
-            status: validationStatus,
+            status: validTransactions.length > 0 ? "VALIDATED" : "ALL_REJECTED",
             inputFileName: initialBatch.inputFileName,
             summary: {
                 totalRows: initialBatch.totalRows,
@@ -390,12 +291,9 @@ module.exports = {
             currency: "XOF"
         };
 
-        const finalStatus = batch.summary.failed > 0 ? "PARTIALLY_COMPLETED" : "COMPLETED";
-        batch.status = finalStatus;
-        
-        // Mettre à jour le cache avec le statut final
-        updateBatchStatus(batchId, finalStatus, 100, 
-            `Traitement terminé : ${batch.summary.successful} succès, ${batch.summary.failed} échecs`);
+        batch.status = batch.summary.failed > 0
+            ? "COMPLETED_WITH_ERRORS"
+            : "COMPLETED";
         batch.processingCompletedAt = new Date().toISOString();
 
         // Sauvegarder batch.result.json
@@ -624,11 +522,7 @@ module.exports = {
     },
 
     // ════════════════════════════════════════════════════════════
-    // 8. CHECK BATCH STATUS
-    // ════════════════════════════════════════════════════════════
-    checkBatchStatus,
-
-    // 9. GET REPORT (JSON / CSV / PDF)
+    // 8. GET REPORT (JSON / CSV / PDF)
     // ════════════════════════════════════════════════════════════
     async getReport(batchId, format) {
         const batchDir = path.join(__dirname, '../data/reports', batchId);
