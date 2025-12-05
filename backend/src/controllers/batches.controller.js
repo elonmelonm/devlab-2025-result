@@ -1,3 +1,4 @@
+// batches.controller.js
 const batchService = require('../services/batch.service.js');
 
 module.exports = {
@@ -32,12 +33,24 @@ module.exports = {
     },
 
     getReport: async (req, res) => {
-        const file = await batchService.getReport(
-            req.params.batchId,
-            req.query.format
-        );
+        try {
+            const { batchId, format } = req.params;
+            const report = await batchService.getReport(batchId, format);
 
-        res.sendFile(file);
+            if (format === "json") {
+                return res.json(report);
+            }
+
+            if (report.path) {
+                return res.download(report.path);
+            }
+
+            res.status(400).json({ error: "Format de rapport inconnu." });
+
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Erreur lors de la génération du rapport." });
+        }
     },
 
     retryFailed: async (req, res) => {

@@ -100,7 +100,7 @@ router.get('/:batchId', controller.getBatch);
  *       404:
  *         description: Lot non trouvé
  */
-router.get('/:batchId/report', controller.getReport);
+router.get('/:batchId/report/:format', controller.getReport);
 
 /**
  * @swagger
