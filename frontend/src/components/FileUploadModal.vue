@@ -73,7 +73,7 @@
           </div>
 
           <!-- Informations sur le format -->
-          <div class="format-info">
+          <!-- <div class="format-info">
             <div class="info-header">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <circle cx="12" cy="12" r="10"/>
@@ -100,7 +100,7 @@
                 <span>ID/Référence</span>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <!-- Barre de progression -->
           <div v-if="uploading" class="upload-progress">
@@ -271,7 +271,7 @@ export default {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  position: relative;
+  /* position: relative; */
 }
 
 .modal-close {
@@ -305,7 +305,7 @@ export default {
 
 .modal-header {
   text-align: center;
-  padding: 50px 40px 30px;
+  padding: 30px 25px 20px;
   border-bottom: 1px solid #E0E0E0;
 }
 
@@ -343,14 +343,15 @@ export default {
 }
 
 .modal-body {
-  padding: 40px;
+  padding: 20px;
+  /* margin-bottom: 80px; */
 }
 
 /* Zone d'upload */
 .upload-zone {
   border: 3px dashed #E0E0E0;
   border-radius: 16px;
-  padding: 50px 30px;
+  padding: 30px 15px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
@@ -617,6 +618,9 @@ export default {
 
 /* Footer */
 .modal-footer {
+  /* position: fixed;
+  bottom: 20px;
+  right: 400px; */
   padding: 24px 40px;
   border-top: 1px solid #E0E0E0;
   display: flex;
