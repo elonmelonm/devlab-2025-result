@@ -32,7 +32,7 @@
                 <div class="double-bounce1"></div>
                 <div class="double-bounce2"></div>
               </div>
-              <h3>Analyse du fichier en cours...</h3>
+              <h3>{{ loadingMessage }}</h3>
               <p>Veuillez patienter pendant que nous traitons votre fichier.</p>
 
               <div class="progress-container">
@@ -69,7 +69,7 @@
               <h3>Transfert terminé avec succès !</h3>
               <p>Votre fichier a été traité avec succès.</p>
 
-              <div v-if="reportUrl" class="download-options">
+              <div v-if="batchId" class="download-options">
                 <div class="format-selector">
                   <label for="report-format">Format :</label>
                   <select
@@ -169,48 +169,9 @@
             </div>
           </div>
 
-          <!-- Informations sur le format -->
-          <!-- <div class="format-info">
-            <div class="info-header">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="16" x2="12" y2="12"/>
-                <line x1="12" y1="8" x2="12.01" y2="8"/>
-              </svg>
-              <span>Format attendu du fichier</span>
-            </div>
-            <div class="format-columns">
-              <div class="column-item">
-                <span class="column-badge">1</span>
-                <span>Nom complet</span>
-              </div>
-              <div class="column-item">
-                <span class="column-badge">2</span>
-                <span>Montant</span>
-              </div>
-              <div class="column-item">
-                <span class="column-badge">3</span>
-                <span>Devise</span>
-              </div>
-              <div class="column-item">
-                <span class="column-badge">4</span>
-                <span>ID/Référence</span>
-              </div>
-            </div>
-          </div> -->
-
-          <!-- Barre de progression -->
-          <div v-if="uploading" class="upload-progress">
-            <div class="progress-header">
-              <span>Traitement du fichier...</span>
-              <span class="progress-percentage">{{ uploadProgress }}%</span>
-            </div>
-            <div class="progress-bar">
-              <div
-                class="progress-fill"
-                :style="{ width: uploadProgress + '%' }"
-              ></div>
-            </div>
+          <!-- Message d'erreur -->
+          <div v-if="showError" class="error-message">
+            {{ uploadError }}
           </div>
         </div>
 
@@ -221,7 +182,6 @@
             :disabled="!selectedFile || uploading"
           >
             <span v-if="!uploading">Envoyer</span>
-
             <span v-else>Envoi en cours...</span>
           </button>
           <button
@@ -251,8 +211,7 @@ export default {
   emits: ["close", "upload-complete", "upload-success", "upload-error"],
   data() {
     return {
-      closed:true,
-      showHeader:true,
+      showHeader: true,
       selectedFile: null,
       uploadProgress: 0,
       isDragging: false,
@@ -264,32 +223,48 @@ export default {
       uploadError: null,
       showError: false,
       selectedFormat: "pdf",
+      loadingMessage: "Analyse du fichier en cours...",
+      pollingInterval: null, // Pour stocker l'ID du setInterval
       availableFormats: [
         { value: "pdf", label: "PDF" },
         { value: "csv", label: "CSV" },
-        { value: "json", label: "JSON" },
+        // { value: "json", label: "JSON" },
       ],
     };
   },
   methods: {
-    deleteModalHeader(){
+    deleteModalHeader() {
       this.showHeader = false;
     },
     closeModal() {
       if (!this.uploading) {
+        // Nettoyer le polling si actif
+        if (this.pollingInterval) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = null;
+        }
+        this.resetModalState();
         this.$emit("close");
       }
     },
+    resetModalState() {
+      this.selectedFile = null;
+      this.uploadProgress = 0;
+      this.loading = false;
+      this.uploading = false;
+      this.transferCompleted = false;
+      this.batchId = null;
+      this.showError = false;
+      this.uploadError = null;
+      this.showHeader = true;
+    },
     downloadReport() {
-      if (!this.reportUrl) {
-        console.error("Aucune URL de rapport disponible");
+      if (!this.batchId) {
+        console.error("Aucun batchId disponible");
         return;
       }
 
-      // Utiliser l'URL relative car l'instance d'API gère déjà la base URL
       const reportUrl = `http://localhost:9000/api/batches/${this.batchId}/report/${this.selectedFormat}`;
-
-      // Ouvrir directement l'URL dans un nouvel onglet
       window.open(reportUrl, "_blank");
     },
     triggerFileInput() {
@@ -307,9 +282,9 @@ export default {
       if (file && this.isValidFileType(file)) {
         this.selectedFile = file;
       } else {
-        alert(
-          "Format de fichier non supporté. Veuillez utiliser .xlsx, .xls ou .csv"
-        );
+        this.showError = true;
+        this.uploadError =
+          "Format de fichier non supporté. Veuillez utiliser .xlsx, .xls ou .csv";
       }
     },
     isValidFileType(file) {
@@ -336,12 +311,14 @@ export default {
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
     },
+    
     async uploadFile() {
       if (!this.selectedFile) {
         this.showError = true;
         this.uploadError = "Veuillez sélectionner un fichier";
         return;
       }
+
       this.deleteModalHeader();
       this.uploading = true;
       this.loading = true;
@@ -354,6 +331,7 @@ export default {
 
       const formData = new FormData();
       formData.append("file", this.selectedFile);
+      this.loadingMessage = "Upload du fichier en cours...";
 
       try {
         const onUploadProgress = (progressEvent) => {
@@ -362,168 +340,166 @@ export default {
           );
         };
 
-        // Appel au service API pour uploader le fichier
+        // ✅ Appel API pour uploader le fichier
         const response = await api.uploadFile(
           this.selectedFile,
           onUploadProgress
         );
 
-        // Si l'upload est réussi
-        if (response && response.data) {
-          this.batchId = response.data.batchId || response.data.id;
+        console.log("📤 Réponse upload:", response);
 
-          // Si le backend indique que le traitement est en cours
-          if (
-            response.data.message &&
-            response.data.message.includes("en cours")
-          ) {
-            this.loading = true;
-            this.pollBatchStatus();
-          } else if (response.data.success) {
-            this.$emit("upload-success", response.data);
-            this.transferCompleted = true;
-          } else {
-            throw new Error(
-              response.data.message || "Réponse inattendue du serveur"
-            );
-          }
-        } else {
-          throw new Error("Réponse invalide du serveur");
+        // ✅ FIX 1: Extraire correctement les données
+        const responseData = response.data || response;
+        
+        this.batchId = responseData.batchId || responseData.id;
+
+        if (!this.batchId) {
+          throw new Error("Aucun batchId reçu du serveur");
         }
+
+        console.log("✅ BatchId reçu:", this.batchId);
+
+        // ✅ FIX 2: Démarrer le polling immédiatement après l'upload
+        this.loadingMessage = "Validation et traitement en cours...";
+        this.uploadProgress = 10;
+        this.startPolling();
+
       } catch (error) {
-        console.error("Erreur lors de l'upload:", error);
-        this.$emit("upload-error", error.message || "Une erreur est survenue");
-      } finally {
-        this.uploading = false;
-      }
-    },
-    async pollBatchStatus() {
-      if (!this.batchId) {
-        this.loading = false;
-        return;
-      }
-
-      try {
-        const checkStatus = async () => {
-          try {
-            const response = await api.getBatch(this.batchId);
-
-            // Mettre à jour la progression en fonction du statut
-            this.updateProgressFromStatus(
-              response.data?.status || response.status
-            );
-
-            // Si le traitement est terminé
-            const status = response.data?.status || response.status;
-            if (
-              [
-                "COMPLETED",
-                "COMPLETED_WITH_ERRORS",
-                "FAILED",
-                "VALIDATED",
-                "PROCESSED",
-              ].includes(status)
-            ) {
-              this.loading = false;
-              this.transferCompleted = true;
-
-              // Mettre à jour l'URL du rapport si disponible dans la réponse
-              if (response.data?.reportUrl || response.reportUrl) {
-                this.reportUrl = response.data?.reportUrl || response.reportUrl;
-              }
-
-              // Émettre l'événement avec les données de la réponse
-              this.$emit(
-                "upload-complete",
-                response.data?.payments || response.payments || []
-              );
-
-              return;
-            }
-
-            // Si le statut indique que le traitement est toujours en cours
-            if (this.loading) {
-              setTimeout(checkStatus, 2000);
-            }
-          } catch (error) {
-            console.error("Erreur lors de la vérification du statut:", error);
-            this.loading = false;
-            this.showError = true;
-            this.uploadError =
-              "Erreur lors de la vérification du statut du traitement";
-            this.$emit("upload-error", this.uploadError);
-          }
-        };
-
-        // Démarrer la vérification du statut
-        checkStatus();
-      } catch (error) {
-        console.error("Erreur lors de l'initialisation du suivi:", error);
-        this.loading = false;
+        console.error("❌ Erreur lors de l'upload:", error);
         this.showError = true;
-        this.uploadError = "Erreur lors du démarrage du suivi du traitement";
+        this.uploadError = error.message || "Une erreur est survenue lors de l'upload";
+        this.loading = false;
+        this.uploading = false;
         this.$emit("upload-error", this.uploadError);
       }
     },
 
+    // ✅ FIX 3: Méthode dédiée pour démarrer le polling
+    startPolling() {
+      if (!this.batchId) {
+        console.error("❌ Impossible de démarrer le polling sans batchId");
+        this.loading = false;
+        return;
+      }
+
+      console.log("🔄 Démarrage du polling pour batchId:", this.batchId);
+
+      // Première vérification immédiate
+      this.checkBatchStatus();
+
+      // Puis vérification toutes les 2 secondes
+      this.pollingInterval = setInterval(() => {
+        this.checkBatchStatus();
+      }, 2000);
+    },
+
+    // ✅ FIX 4: Vérification du statut du batch
+    async checkBatchStatus() {
+  if (!this.batchId) {
+    console.warn("⚠️ Pas de batchId pour vérifier le statut");
+    return;
+  }
+
+  try {
+    console.log("🔍 Vérification du statut pour:", this.batchId);
+    const response = await api.getBatch(this.batchId);
+    const batchData = response.data || response;
+    const status = batchData.status;
+
+    console.log("📊 Statut actuel:", status);
+    this.updateProgressFromStatus(status);
+
+    const terminalStatuses = ["COMPLETED", "COMPLETED_WITH_ERRORS", "FAILED", "ALL_REJECTED"];
+
+    if (terminalStatuses.includes(status)) {
+      console.log("✅ Traitement terminé avec statut:", status);
+
+      if (this.pollingInterval) {
+        clearInterval(this.pollingInterval);
+        this.pollingInterval = null;
+      }
+
+      this.loading = false;
+      this.uploading = false;
+      this.transferCompleted = true;
+      this.uploadProgress = 100;
+
+      if (batchData.reportUrl) {
+        this.reportUrl = batchData.reportUrl;
+      }
+
+      // Normalisation complète des données
+      const normalizedData = {
+        ...batchData,
+        payments: Array.isArray(batchData.payments) ? batchData.payments :
+                 (Array.isArray(batchData.newPayments) ? batchData.newPayments : []),
+        transactions: Array.isArray(batchData.transactions) ? batchData.transactions : [],
+        status: batchData.status || status,
+        batchId: batchData.batchId || batchData.id || this.batchId
+      };
+
+      this.$emit("upload-complete", normalizedData);
+
+      if (status === "COMPLETED") {
+        this.$emit("upload-success", normalizedData);
+      }
+    }
+
+  } catch (error) {
+    console.error("❌ Erreur lors de la vérification du statut:", error);
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
+    this.loading = false;
+    this.uploading = false;
+    this.showError = true;
+    // this.uploadError = "Erreur lors de la vérification du statut";
+    this.$emit("upload-error", error);
+  }
+},
+
+    // ✅ FIX 6: Progression basée sur le statut
     updateProgressFromStatus(status) {
-      // Mettre à jour la barre de progression en fonction du statut
       const statusProgress = {
-        PENDING: 10,
-        PROCESSING: 30,
-        EXTRACTING: 50,
-        TRANSFORMING: 70,
-        LOADING: 90,
+        UPLOADED: 20,
+        VALIDATED: 40,
+        RUNNING: 60,
+        PROCESSING: 70,
         COMPLETED: 100,
         COMPLETED_WITH_ERRORS: 100,
+        ALL_REJECTED: 100,
         FAILED: 100,
       };
 
-      this.uploadProgress = statusProgress[status] || this.uploadProgress;
-    },
+      const progress = statusProgress[status];
+      if (progress) {
+        this.uploadProgress = progress;
+      }
 
-    processFile() {
-      // Ancienne méthode conservée pour compatibilité
-      const mockData = this.generateMockPayments();
-      this.$emit("upload-complete", mockData);
-      this.uploading = false;
-      this.uploadProgress = 0;
-      this.selectedFile = null;
-      this.$emit("close");
-    },
-    generateMockPayments() {
-      // Génère des données de paiement fictives
-      const names = [
-        "Jean Dupont",
-        "Marie Martin",
-        "Pierre Dubois",
-        "Sophie Laurent",
-        "Luc Bernard",
-        "Emma Petit",
-        "Thomas Robert",
-        "Julie Moreau",
-        "Antoine Simon",
-        "Camille Michel",
-        "Nicolas Leroy",
-        "Sarah Garnier",
-      ];
+      // Mettre à jour le message de chargement
+      const statusMessages = {
+        UPLOADED: "Fichier téléchargé, validation en cours...",
+        VALIDATED: "Validation réussie, traitement des paiements...",
+        RUNNING: "Traitement des transactions en cours...",
+        PROCESSING: "Finalisation du traitement...",
+      };
 
-      const currencies = ["XAF", "EUR", "USD"];
-      const count = Math.floor(Math.random() * 8) + 5; // Entre 5 et 12 paiements
-
-      return Array.from({ length: count }, (_, index) => ({
-        id: `PAY-${Date.now()}-${index + 1}`,
-        fullName: names[Math.floor(Math.random() * names.length)],
-        amount: Math.floor(Math.random() * 900000) + 100000, // Entre 100k et 1M
-        currency: currencies[Math.floor(Math.random() * currencies.length)],
-        status: "pending",
-        date: new Date().toISOString(),
-      }));
+      if (statusMessages[status]) {
+        this.loadingMessage = statusMessages[status];
+      }
     },
+  },
+
+  // ✅ Nettoyer le polling lors de la destruction du composant
+  beforeUnmount() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
   },
 };
 </script>
-
 <style scoped>
 /* Animation de succès */
 .success-screen {
