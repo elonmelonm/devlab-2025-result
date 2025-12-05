@@ -97,16 +97,15 @@
           <div class="balance-card1">
             <div class="balance-header">
               <div class="balance-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <line x1="12" y1="1" x2="12" y2="23" />
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
+                <span class="material-symbols-outlined">
+                  account_balance_wallet
+                </span>
               </div>
               <div class="balance-info">
-                <span class="balance-label">Solde disponible</span>
+                <!-- <span class="balance-label">Solde disponible</span> -->
                 <h2 class="balance-amount">
                   {{ formatCurrency(balance) }}
-                  <span class="currency">XAF</span>
+                  <span class="currency">XOF</span>
                 </h2>
               </div>
             </div>
@@ -454,7 +453,7 @@
               <label>Devise</label>
               <select v-model="filterCurrency">
                 <option value="">Toutes</option>
-                <option value="XAF">XAF</option>
+                <option value="XOF">XOF</option>
                 <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
               </select>
@@ -540,7 +539,7 @@ export default {
       filterCurrency: "",
       filterPeriod: "",
       balance: 12500000,
-      monthlyIncrease: 1850000,
+      monthlyIncrease: 18500,
       payments: [],
       selectedPayments: [],
       selectAll: false,
@@ -720,7 +719,7 @@ export default {
           id: "PAY-2024-001",
           fullName: "Alice Dupont",
           amount: 500000,
-          currency: "XAF",
+          currency: "XOF",
           status: "completed",
           date: new Date(Date.now() - 86400000).toISOString(),
         },
@@ -728,7 +727,7 @@ export default {
           id: "PAY-2024-002",
           fullName: "Bob Martin",
           amount: 750000,
-          currency: "XAF",
+          currency: "XOF",
           status: "completed",
           date: new Date(Date.now() - 172800000).toISOString(),
         },
@@ -1127,31 +1126,33 @@ export default {
 } */
 
 .balance-header {
+  width: 70%;
+  height: 30%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 20px;
   margin-bottom: 30px;
   position: relative;
   z-index: 1;
   color: #000000;
+  /* background-color: #F3F5F8; */
 }
 
 .balance-icon {
   width: 60px;
-  height: 60px;
+  height: 100%;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  font-variation-settings: "FILL" 1;
 }
 
-.balance-icon svg {
-  width: 32px;
-  height: 32px;
-  stroke-width: 2.5;
+.balance-icon span {
+  font-size: 50px;
+  color: #e5b919 ;
 }
 
 .balance-info {
@@ -1166,9 +1167,10 @@ export default {
 }
 
 .balance-amount {
-  font-size: 48px;
+  font-size: 50px;
   font-weight: 700;
-  margin: 0;
+  /* margin: 0; */
+  margin-bottom: 7px;
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -1183,9 +1185,11 @@ export default {
 .balance-stats {
   display: flex;
   gap: 30px;
+  margin-left: 5px;
   position: relative;
   z-index: 1;
   color: #000000;
+  /* background-color: #3b82f6; */
 }
 
 .stat-item {
@@ -1592,7 +1596,7 @@ export default {
   text-transform: uppercase;
 }
 
-.currency-badge.xaf {
+.currency-badge.xof {
   background: rgba(16, 185, 129, 0.1);
   color: var(--success-green);
 }
