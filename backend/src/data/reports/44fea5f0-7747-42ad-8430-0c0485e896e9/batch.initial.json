@@ -1,0 +1,126 @@
+{
+  "batchId": "44fea5f0-7747-42ad-8430-0c0485e896e9",
+  "createdAt": "2025-12-05T08:18:53.430Z",
+  "status": "PENDING",
+  "inputFileName": "payment_list.csv",
+  "summary": {},
+  "transactions": [
+    {
+      "txId": "tx-00001",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "3948329914",
+      "devise": "XOF",
+      "montant": 500,
+      "nom_complet": "Boris Avocè",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00002",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "1061395480",
+      "devise": "USD",
+      "montant": 100,
+      "nom_complet": "Malick Avocè",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00003",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "7623502870",
+      "devise": "XOF",
+      "montant": 20000,
+      "nom_complet": "Chabi Tchibozo",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00004",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": null,
+      "devise": "XOF",
+      "montant": 100,
+      "nom_complet": "Judith Hounsa",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00005",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "0231397586",
+      "devise": "XOF",
+      "montant": 1000,
+      "nom_complet": null,
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00006",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "9929404434",
+      "devise": "XOF",
+      "montant": 10000,
+      "nom_complet": "Jacques Gandonou",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00007",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "8884191054X",
+      "devise": "XOF",
+      "montant": 20000,
+      "nom_complet": "Abdou Kpangon",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00008",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "812829241",
+      "devise": "XOF",
+      "montant": 5000,
+      "nom_complet": "Donatien Fagbemi",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00009",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "6934235077",
+      "devise": "XOF",
+      "montant": 500,
+      "nom_complet": "Sylvie Lokossou",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00010",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "9368482395",
+      "devise": "XOF",
+      "montant": 100,
+      "nom_complet": "Chabi Ahouansou",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00011",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "8128829241",
+      "devise": null,
+      "montant": null,
+      "nom_complet": "Flora Adjovi",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00012",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "1226998969",
+      "devise": "XOF",
+      "montant": 500,
+      "nom_complet": "Catherine Yayi",
+      "status": "PENDING"
+    },
+    {
+      "txId": "tx-00013",
+      "type_id": "PERSONAL_ID",
+      "valeur_id": "1226998969",
+      "devise": "500",
+      "montant": null,
+      "nom_complet": "Catherine Talon",
+      "status": "PENDING"
+    }
+  ]
+}

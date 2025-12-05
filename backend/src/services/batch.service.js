@@ -46,7 +46,7 @@ module.exports = {
             module.exports.processBatch(batchId);
         }, 100);
 
-        return { batchId, status: "PENDING" };
+        return { batchId, status: "PENDING", extractInitial: true };
     },
 
     // ────────────────────────────────────────────────
@@ -180,12 +180,97 @@ module.exports = {
         const resultPath = path.join(batchDir, 'batch.result.json');
         fs.writeFileSync(resultPath, JSON.stringify(batch, null, 2));
 
+        // Générer le rapport PDF
+        const reportFilename = `rapport-${batchId}.pdf`;
+        const reportPath = path.join(batchDir, reportFilename);
+        await this.generateReportPdf(batch, reportPath);
+
+        // Ajouter l'URL du rapport au batch
+        batch.reportUrl = `/api/batches/${batchId}/report/${reportFilename}`;
+
         console.log(">>> BATCH TERMINÉ :", batchId);
         return batch;
     },
 
     // ────────────────────────────────────────────────
-    // 5. RETRY FAILED
+    // 5. GENERATE REPORT
+    async generateReportPdf(batch, outputPath) {
+        return new Promise((resolve, reject) => {
+            try {
+                const doc = new PDFDocument();
+                const stream = fs.createWriteStream(outputPath);
+                
+                // En-tête du document
+                doc.fontSize(20).text('Rapport de traitement', { align: 'center' });
+                doc.moveDown();
+                
+                // Informations générales
+                doc.fontSize(14).text('Résumé du lot', { underline: true });
+                doc.fontSize(12);
+                doc.text(`ID du lot: ${batch.batchId}`);
+                doc.text(`Statut: ${batch.status}`);
+                doc.text(`Date de traitement: ${new Date().toLocaleString()}`);
+                doc.moveDown();
+                
+                // Tableau de synthèse
+                const summaryTable = {
+                    title: 'Résumé des transactions',
+                    headers: ['Total', 'Réussies', 'Échouées', 'Montant total'],
+                    rows: [
+                        [
+                            batch.summary.totalTransactions,
+                            batch.summary.successful,
+                            batch.summary.failed,
+                            `${batch.summary.totalAmount} ${batch.summary.currency || ''}`.trim()
+                        ]
+                    ]
+                };
+                
+                doc.fontSize(12);
+                doc.table(summaryTable, {
+                    prepareHeader: () => doc.font('Helvetica-Bold'),
+                    prepareRow: (row, i) => doc.font('Helvetica').fontSize(10)
+                });
+                
+                doc.moveDown();
+                
+                // Détail des transactions
+                doc.addPage();
+                doc.fontSize(14).text('Détail des transactions', { align: 'center', underline: true });
+                doc.moveDown();
+                
+                const transactionsTable = {
+                    headers: ['ID', 'Bénéficiaire', 'Montant', 'Statut'],
+                    rows: batch.transactions.map(tx => [
+                        tx.txId,
+                        tx.nom_complet || 'N/A',
+                        `${tx.montant} ${tx.devise || ''}`.trim(),
+                        tx.status === 'SUCCESS' ? '✅ Succès' : '❌ Échec'
+                    ])
+                };
+                
+                doc.table(transactionsTable, {
+                    prepareHeader: () => doc.font('Helvetica-Bold'),
+                    prepareRow: (row, i) => doc.font('Helvetica').fontSize(8),
+                    columnSpacing: 5,
+                    divider: {
+                        header: { disabled: false, width: 1, opacity: 0.5 },
+                        horizontal: { disabled: false, width: 0.5, opacity: 0.5 }
+                    }
+                });
+                
+                doc.end();
+                stream.on('finish', resolve);
+                stream.on('error', reject);
+                doc.pipe(stream);
+            } catch (error) {
+                console.error('Erreur lors de la génération du PDF:', error);
+                reject(error);
+            }
+        });
+    },
+
+    // 6. RETRY FAILED
     // ────────────────────────────────────────────────
     async retryFailed(batchId) {
         const batchDir = path.join(__dirname, '../data/reports', batchId);

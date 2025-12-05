@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const controller = require('../controllers/batches.controller.js');
+const path = require('path');
 
 /**
  * @swagger
@@ -122,6 +123,38 @@ router.get('/:batchId/report/:format', controller.getReport);
  *         description: Lot non trouvé
  */
 router.post('/:batchId/retry-failed', controller.retryFailed);
+
+/**
+ * @swagger
+ * /api/batches/{batchId}/report/{filename}:
+ *   get:
+ *     summary: Télécharger le rapport PDF d'un lot
+ *     tags: [Batches]
+ *     parameters:
+ *       - in: path
+ *         name: batchId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID du lot
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Nom du fichier de rapport
+ *     responses:
+ *       200:
+ *         description: Fichier PDF du rapport
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Fichier de rapport non trouvé
+ */
+router.get('/:batchId/report/:filename', controller.downloadReport);
 
 /**
  * @swagger

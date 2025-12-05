@@ -1,6 +1,6 @@
 {
-  "batchId": "b437b4d1-4fec-42ea-9037-f077c775b8c9",
-  "createdAt": "2025-12-04T19:31:23.015Z",
+  "batchId": "e71251d3-ccf8-47af-b8ed-5ce6f5800599",
+  "createdAt": "2025-12-05T08:40:02.986Z",
   "status": "PENDING",
   "inputFileName": "payment_list.csv",
   "summary": {},
@@ -99,8 +99,8 @@
       "txId": "tx-00011",
       "type_id": "PERSONAL_ID",
       "valeur_id": "8128829241",
-      "devise": "XOF",
-      "montant": 2500,
+      "devise": null,
+      "montant": null,
       "nom_complet": "Flora Adjovi",
       "status": "PENDING"
     },
