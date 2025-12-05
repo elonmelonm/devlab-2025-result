@@ -66,7 +66,7 @@
                   d="M14.1 27.2l7.1 7.2 16.7-16.8"
                 />
               </svg>
-              <h3>Transfert terminé avec succès !</h3>
+              <h3>Opération de transfert terminé !</h3>
               <p>Votre fichier a été traité avec succès.</p>
 
               <div v-if="batchId" class="download-options">
@@ -230,6 +230,7 @@ export default {
         { value: "csv", label: "CSV" },
         // { value: "json", label: "JSON" },
       ],
+      completedBatchData: null, // ✅ Pour stocker les données du batch complété
     };
   },
   methods: {
@@ -243,6 +244,15 @@ export default {
           clearInterval(this.pollingInterval);
           this.pollingInterval = null;
         }
+
+        // ✅ ENVOYER LES DONNÉES AVANT DE FERMER
+        if (this.transferCompleted && this.batchId) {
+          this.$emit('transfer-finalized', {
+            batchId: this.batchId,
+            shouldLoadHistory: true // Flag pour indiquer qu'il faut charger l'historique
+          });
+        }
+
         this.resetModalState();
         this.$emit("close");
       }
@@ -389,69 +399,81 @@ export default {
 
     // ✅ FIX 4: Vérification du statut du batch
     async checkBatchStatus() {
-  if (!this.batchId) {
-    console.warn("⚠️ Pas de batchId pour vérifier le statut");
-    return;
-  }
-
-  try {
-    console.log("🔍 Vérification du statut pour:", this.batchId);
-    const response = await api.getBatch(this.batchId);
-    const batchData = response.data || response;
-    const status = batchData.status;
-
-    console.log("📊 Statut actuel:", status);
-    this.updateProgressFromStatus(status);
-
-    const terminalStatuses = ["COMPLETED", "COMPLETED_WITH_ERRORS", "FAILED", "ALL_REJECTED"];
-
-    if (terminalStatuses.includes(status)) {
-      console.log("✅ Traitement terminé avec statut:", status);
-
-      if (this.pollingInterval) {
-        clearInterval(this.pollingInterval);
-        this.pollingInterval = null;
+      if (!this.batchId) {
+        console.warn("⚠️ Pas de batchId pour vérifier le statut");
+        return;
       }
 
-      this.loading = false;
-      this.uploading = false;
-      this.transferCompleted = true;
-      this.uploadProgress = 100;
+      try {
+        console.log("🔍 Vérification du statut pour:", this.batchId);
+        const response = await api.getBatch(this.batchId);
+        const batchData = response.data || response;
+        const status = batchData.status;
 
-      if (batchData.reportUrl) {
-        this.reportUrl = batchData.reportUrl;
+        console.log("📊 Statut actuel:", status);
+        this.updateProgressFromStatus(status);
+
+        const terminalStatuses = ["COMPLETED", "COMPLETED_WITH_ERRORS", "FAILED", "ALL_REJECTED"];
+
+        if (terminalStatuses.includes(status)) {
+          console.log("✅ Traitement terminé avec statut:", status);
+
+          if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+          }
+
+          this.loading = false;
+          this.uploading = false;
+          this.transferCompleted = true;
+          this.uploadProgress = 100;
+
+          if (batchData.reportUrl) {
+            this.reportUrl = batchData.reportUrl;
+          }
+
+          // Normalisation complète des données
+          const normalizedData = {
+            ...batchData,
+            payments: Array.isArray(batchData.payments) ? batchData.payments :
+                    (Array.isArray(batchData.newPayments) ? batchData.newPayments : []),
+            transactions: Array.isArray(batchData.transactions) ? batchData.transactions : [],
+            status: batchData.status || status,
+            batchId: batchData.batchId || batchData.id || this.batchId
+          };
+
+          // ✅ SAUVEGARDER LES DONNÉES COMPLÈTES DU BATCH
+          this.completedBatchData = {
+            batchId: batchData.batchId || batchData.id || this.batchId,
+            status: batchData.status || status,
+            payments: Array.isArray(batchData.payments) ? batchData.payments :
+                    (Array.isArray(batchData.newPayments) ? batchData.newPayments : []),
+            transactions: Array.isArray(batchData.transactions) ? batchData.transactions : [],
+            summary: batchData.summary || {},
+            createdAt: batchData.createdAt || new Date().toISOString(),
+            reportUrl: batchData.reportUrl
+          };
+
+          this.$emit("upload-complete", normalizedData);
+
+          if (status === "COMPLETED") {
+            this.$emit("upload-success", normalizedData);
+          }
+        }
+
+      } catch (error) {
+        console.error("❌ Erreur lors de la vérification du statut:", error);
+        if (this.pollingInterval) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = null;
+        }
+        this.loading = false;
+        this.uploading = false;
+        this.showError = true;
+        // this.uploadError = "Erreur lors de la vérification du statut";
+        this.$emit("upload-error", error);
       }
-
-      // Normalisation complète des données
-      const normalizedData = {
-        ...batchData,
-        payments: Array.isArray(batchData.payments) ? batchData.payments :
-                 (Array.isArray(batchData.newPayments) ? batchData.newPayments : []),
-        transactions: Array.isArray(batchData.transactions) ? batchData.transactions : [],
-        status: batchData.status || status,
-        batchId: batchData.batchId || batchData.id || this.batchId
-      };
-
-      this.$emit("upload-complete", normalizedData);
-
-      if (status === "COMPLETED") {
-        this.$emit("upload-success", normalizedData);
-      }
-    }
-
-  } catch (error) {
-    console.error("❌ Erreur lors de la vérification du statut:", error);
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
-    }
-    this.loading = false;
-    this.uploading = false;
-    this.showError = true;
-    // this.uploadError = "Erreur lors de la vérification du statut";
-    this.$emit("upload-error", error);
-  }
-},
+    },
 
     // ✅ FIX 6: Progression basée sur le statut
     updateProgressFromStatus(status) {
