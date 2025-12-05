@@ -1,7 +1,7 @@
 <template>
   <transition name="modal">
     <div v-if="show" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-container" v-if="closed">
+      <div class="modal-container" v-if="show">
         <button class="modal-close" @click="closeModal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -246,6 +246,8 @@ export default {
         this.resetModalState();
         this.$emit("close");
       }
+              this.resetModalState();
+        this.$emit("close");
     },
     resetModalState() {
       this.selectedFile = null;
@@ -1226,8 +1228,9 @@ export default {
   }
 
   .modal-footer {
-    padding: 20px 24px;
+    width: 100%;
     flex-direction: column;
+    background-color: green;
   }
 
   .btn-secondary,
