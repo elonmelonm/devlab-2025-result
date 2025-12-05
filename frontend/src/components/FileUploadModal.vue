@@ -4,21 +4,24 @@
       <div class="modal-container">
         <button class="modal-close" @click="closeModal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
 
-        <div class="modal-header">
+        <div class="modal-header" v-if="showHeader">
           <div class="header-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
           </div>
           <h2>Importer un fichier de paiement</h2>
-          <p>Téléchargez votre fichier Excel ou CSV contenant les informations de paiement</p>
+          <p>
+            Téléchargez votre fichier Excel ou CSV contenant les informations de
+            paiement
+          </p>
         </div>
 
         <div class="modal-body">
@@ -31,9 +34,12 @@
               </div>
               <h3>Analyse du fichier en cours...</h3>
               <p>Veuillez patienter pendant que nous traitons votre fichier.</p>
-              
+
               <div class="progress-container">
-                <div class="progress-bar" :style="{ width: uploadProgress + '%' }"></div>
+                <div
+                  class="progress-bar"
+                  :style="{ width: uploadProgress + '%' }"
+                ></div>
               </div>
               <span class="progress-text">{{ uploadProgress }}%</span>
             </div>
@@ -42,25 +48,58 @@
           <!-- Écran de succès -->
           <div v-else-if="transferCompleted" class="success-screen">
             <div class="success-animation">
-              <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+              <svg
+                class="checkmark"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 52 52"
+              >
+                <circle
+                  class="checkmark__circle"
+                  cx="26"
+                  cy="26"
+                  r="25"
+                  fill="none"
+                />
+                <path
+                  class="checkmark__check"
+                  fill="none"
+                  d="M14.1 27.2l7.1 7.2 16.7-16.8"
+                />
               </svg>
               <h3>Transfert terminé avec succès !</h3>
               <p>Votre fichier a été traité avec succès.</p>
-              
+
               <div v-if="reportUrl" class="download-options">
                 <div class="format-selector">
                   <label for="report-format">Format :</label>
-                  <select id="report-format" v-model="selectedFormat" class="format-dropdown">
-                    <option v-for="format in availableFormats" :key="format.value" :value="format.value">
+                  <select
+                    id="report-format"
+                    v-model="selectedFormat"
+                    class="format-dropdown"
+                  >
+                    <option
+                      v-for="format in availableFormats"
+                      :key="format.value"
+                      :value="format.value"
+                    >
                       {{ format.label }}
                     </option>
                   </select>
                 </div>
-                
+
                 <button @click="downloadReport" class="download-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="download-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="download-icon"
+                  >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>
                     <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -68,13 +107,13 @@
                   Télécharger le rapport (.{{ selectedFormat }})
                 </button>
               </div>
-              
+
               <button @click="closeModal" class="close-btn">Fermer</button>
             </div>
           </div>
 
           <!-- Zone de drag & drop -->
-          <div 
+          <div
             v-else-if="!loading && !transferCompleted"
             class="upload-zone"
             :class="{ 'drag-over': isDragging, 'has-file': selectedFile }"
@@ -94,21 +133,25 @@
             <div v-if="!selectedFile" class="upload-placeholder">
               <div class="upload-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
                 </svg>
               </div>
               <h3>Glissez votre fichier ici</h3>
               <p>ou cliquez pour parcourir</p>
-              <span class="file-types">Formats acceptés: .xlsx, .xls, .csv</span>
+              <span class="file-types"
+                >Formats acceptés: .xlsx, .xls, .csv</span
+              >
             </div>
 
             <div v-else class="file-preview">
               <div class="file-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
-                  <polyline points="13 2 13 9 20 9"/>
+                  <path
+                    d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"
+                  />
+                  <polyline points="13 2 13 9 20 9" />
                 </svg>
               </div>
               <div class="file-info">
@@ -117,8 +160,10 @@
               </div>
               <button class="remove-file" @click.stop="removeFile">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <polyline points="3 6 5 6 21 6" />
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  />
                 </svg>
               </button>
             </div>
@@ -161,20 +206,30 @@
               <span class="progress-percentage">{{ uploadProgress }}%</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
+              <div
+                class="progress-fill"
+                :style="{ width: uploadProgress + '%' }"
+              ></div>
             </div>
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal" :disabled="uploading">
-            Annuler
-          </button>
-          <button class="btn-primary" @click="uploadFile" :disabled="!selectedFile || uploading">
-            <svg v-if="!uploading" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
+        <div class="modal-footer" v-if="showHeader">
+          <button
+            class="btn-primary"
+            @click="uploadFile"
+            :disabled="!selectedFile || uploading"
+          >
+            <span v-if="!uploading">Envoyer</span>
+
             <span v-else>Envoi en cours...</span>
+          </button>
+          <button
+            class="btn-secondary"
+            @click="closeModal"
+            :disabled="uploading"
+          >
+            Annuler
           </button>
         </div>
       </div>
@@ -183,19 +238,20 @@
 </template>
 
 <script>
-import api from '@/services/api'
+import api from "@/services/api";
 
 export default {
-  name: 'FileUploadModal',
+  name: "FileUploadModal",
   props: {
     show: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['close', 'upload-complete', 'upload-success', 'upload-error'],
+  emits: ["close", "upload-complete", "upload-success", "upload-error"],
   data() {
     return {
+      showHeader:true,
       selectedFile: null,
       uploadProgress: 0,
       isDragging: false,
@@ -206,87 +262,94 @@ export default {
       reportUrl: null,
       uploadError: null,
       showError: false,
-      selectedFormat: 'pdf',
+      selectedFormat: "pdf",
       availableFormats: [
-        { value: 'pdf', label: 'PDF' },
-        { value: 'csv', label: 'CSV' },
-        { value: 'json', label: 'JSON' }
-      ]
-    }
+        { value: "pdf", label: "PDF" },
+        { value: "csv", label: "CSV" },
+        { value: "json", label: "JSON" },
+      ],
+    };
   },
   methods: {
+    deleteModalHeader(){
+      this.showHeader = false;
+    },
     closeModal() {
       if (!this.uploading) {
-        this.$emit('close')
+        this.$emit("close");
       }
     },
     downloadReport() {
       if (!this.reportUrl) {
-        console.error('Aucune URL de rapport disponible');
+        console.error("Aucune URL de rapport disponible");
         return;
       }
 
       // Utiliser l'URL relative car l'instance d'API gère déjà la base URL
       const reportUrl = `http://localhost:9000/api/batches/${this.batchId}/report/${this.selectedFormat}`;
-      
+
       // Ouvrir directement l'URL dans un nouvel onglet
-      window.open(reportUrl, '_blank');
+      window.open(reportUrl, "_blank");
     },
     triggerFileInput() {
-      this.$refs.fileInput.click()
+      this.$refs.fileInput.click();
     },
     handleFileSelect(event) {
-      const file = event.target.files[0]
+      const file = event.target.files[0];
       if (file) {
-        this.selectedFile = file
+        this.selectedFile = file;
       }
     },
     handleFileDrop(event) {
-      this.isDragging = false
-      const file = event.dataTransfer.files[0]
+      this.isDragging = false;
+      const file = event.dataTransfer.files[0];
       if (file && this.isValidFileType(file)) {
-        this.selectedFile = file
+        this.selectedFile = file;
       } else {
-        alert('Format de fichier non supporté. Veuillez utiliser .xlsx, .xls ou .csv')
+        alert(
+          "Format de fichier non supporté. Veuillez utiliser .xlsx, .xls ou .csv"
+        );
       }
     },
     isValidFileType(file) {
       const validTypes = [
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-excel',
-        'text/csv'
-      ]
-      return validTypes.includes(file.type) || 
-             file.name.endsWith('.xlsx') || 
-             file.name.endsWith('.xls') || 
-             file.name.endsWith('.csv')
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel",
+        "text/csv",
+      ];
+      return (
+        validTypes.includes(file.type) ||
+        file.name.endsWith(".xlsx") ||
+        file.name.endsWith(".xls") ||
+        file.name.endsWith(".csv")
+      );
     },
     removeFile() {
-      this.selectedFile = null
-      this.$refs.fileInput.value = ''
+      this.selectedFile = null;
+      this.$refs.fileInput.value = "";
     },
     formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes'
-      const k = 1024
-      const sizes = ['Bytes', 'KB', 'MB', 'GB']
-      const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+      if (bytes === 0) return "0 Bytes";
+      const k = 1024;
+      const sizes = ["Bytes", "KB", "MB", "GB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
     },
     async uploadFile() {
       if (!this.selectedFile) {
         this.showError = true;
-        this.uploadError = 'Veuillez sélectionner un fichier';
+        this.uploadError = "Veuillez sélectionner un fichier";
         return;
       }
-
+      this.deleteModalHeader();
       this.uploading = true;
       this.loading = true;
       this.uploadProgress = 0;
       this.showError = false;
-      this.uploadError = '';
+      this.uploadError = "";
 
       const formData = new FormData();
-      formData.append('file', this.selectedFile);
+      formData.append("file", this.selectedFile);
 
       try {
         const onUploadProgress = (progressEvent) => {
@@ -296,30 +359,38 @@ export default {
         };
 
         // Appel au service API pour uploader le fichier
-        const response = await api.uploadFile(this.selectedFile, onUploadProgress);
-        
+        const response = await api.uploadFile(
+          this.selectedFile,
+          onUploadProgress
+        );
+
         // Si l'upload est réussi
         if (response && response.data) {
           this.batchId = response.data.batchId || response.data.id;
-          
+
           // Si le backend indique que le traitement est en cours
-          if (response.data.message && response.data.message.includes('en cours')) {
+          if (
+            response.data.message &&
+            response.data.message.includes("en cours")
+          ) {
             this.loading = true;
             this.pollBatchStatus();
           } else if (response.data.success) {
-            this.$emit('upload-success', response.data);
+            this.$emit("upload-success", response.data);
             this.transferCompleted = true;
           } else {
-            throw new Error(response.data.message || 'Réponse inattendue du serveur');
+            throw new Error(
+              response.data.message || "Réponse inattendue du serveur"
+            );
           }
         } else {
-          throw new Error('Réponse invalide du serveur');
+          throw new Error("Réponse invalide du serveur");
         }
       } catch (error) {
-        console.error('Erreur lors de l\'upload:', error)
-        this.$emit('upload-error', error.message || 'Une erreur est survenue')
+        console.error("Erreur lors de l'upload:", error);
+        this.$emit("upload-error", error.message || "Une erreur est survenue");
       } finally {
-        this.uploading = false
+        this.uploading = false;
       }
     },
     async pollBatchStatus() {
@@ -327,103 +398,126 @@ export default {
         this.loading = false;
         return;
       }
-      
+
       try {
         const checkStatus = async () => {
           try {
             const response = await api.getBatch(this.batchId);
-            
+
             // Mettre à jour la progression en fonction du statut
-            this.updateProgressFromStatus(response.data?.status || response.status);
-            
+            this.updateProgressFromStatus(
+              response.data?.status || response.status
+            );
+
             // Si le traitement est terminé
             const status = response.data?.status || response.status;
-            if (['COMPLETED', 'COMPLETED_WITH_ERRORS', 'FAILED', 'VALIDATED', 'PROCESSED'].includes(status)) {
+            if (
+              [
+                "COMPLETED",
+                "COMPLETED_WITH_ERRORS",
+                "FAILED",
+                "VALIDATED",
+                "PROCESSED",
+              ].includes(status)
+            ) {
               this.loading = false;
               this.transferCompleted = true;
-              
+
               // Mettre à jour l'URL du rapport si disponible dans la réponse
               if (response.data?.reportUrl || response.reportUrl) {
                 this.reportUrl = response.data?.reportUrl || response.reportUrl;
               }
-              
+
               // Émettre l'événement avec les données de la réponse
-              this.$emit('upload-complete', response.data?.payments || response.payments || []);
-              
+              this.$emit(
+                "upload-complete",
+                response.data?.payments || response.payments || []
+              );
+
               return;
             }
-            
+
             // Si le statut indique que le traitement est toujours en cours
             if (this.loading) {
               setTimeout(checkStatus, 2000);
             }
           } catch (error) {
-            console.error('Erreur lors de la vérification du statut:', error);
+            console.error("Erreur lors de la vérification du statut:", error);
             this.loading = false;
             this.showError = true;
-            this.uploadError = 'Erreur lors de la vérification du statut du traitement';
-            this.$emit('upload-error', this.uploadError);
+            this.uploadError =
+              "Erreur lors de la vérification du statut du traitement";
+            this.$emit("upload-error", this.uploadError);
           }
         };
-        
+
         // Démarrer la vérification du statut
         checkStatus();
       } catch (error) {
-        console.error('Erreur lors de l\'initialisation du suivi:', error);
+        console.error("Erreur lors de l'initialisation du suivi:", error);
         this.loading = false;
         this.showError = true;
-        this.uploadError = 'Erreur lors du démarrage du suivi du traitement';
-        this.$emit('upload-error', this.uploadError);
+        this.uploadError = "Erreur lors du démarrage du suivi du traitement";
+        this.$emit("upload-error", this.uploadError);
       }
     },
-    
+
     updateProgressFromStatus(status) {
       // Mettre à jour la barre de progression en fonction du statut
       const statusProgress = {
-        'PENDING': 10,
-        'PROCESSING': 30,
-        'EXTRACTING': 50,
-        'TRANSFORMING': 70,
-        'LOADING': 90,
-        'COMPLETED': 100,
-        'COMPLETED_WITH_ERRORS': 100,
-        'FAILED': 100
-      }
-      
-      this.uploadProgress = statusProgress[status] || this.uploadProgress
+        PENDING: 10,
+        PROCESSING: 30,
+        EXTRACTING: 50,
+        TRANSFORMING: 70,
+        LOADING: 90,
+        COMPLETED: 100,
+        COMPLETED_WITH_ERRORS: 100,
+        FAILED: 100,
+      };
+
+      this.uploadProgress = statusProgress[status] || this.uploadProgress;
     },
-    
+
     processFile() {
       // Ancienne méthode conservée pour compatibilité
-      const mockData = this.generateMockPayments()
-      this.$emit('upload-complete', mockData)
-      this.uploading = false
-      this.uploadProgress = 0
-      this.selectedFile = null
-      this.$emit('close')
+      const mockData = this.generateMockPayments();
+      this.$emit("upload-complete", mockData);
+      this.uploading = false;
+      this.uploadProgress = 0;
+      this.selectedFile = null;
+      this.$emit("close");
     },
     generateMockPayments() {
       // Génère des données de paiement fictives
       const names = [
-        'Jean Dupont', 'Marie Martin', 'Pierre Dubois', 'Sophie Laurent',
-        'Luc Bernard', 'Emma Petit', 'Thomas Robert', 'Julie Moreau',
-        'Antoine Simon', 'Camille Michel', 'Nicolas Leroy', 'Sarah Garnier'
-      ]
-      
-      const currencies = ['XAF', 'EUR', 'USD']
-      const count = Math.floor(Math.random() * 8) + 5 // Entre 5 et 12 paiements
+        "Jean Dupont",
+        "Marie Martin",
+        "Pierre Dubois",
+        "Sophie Laurent",
+        "Luc Bernard",
+        "Emma Petit",
+        "Thomas Robert",
+        "Julie Moreau",
+        "Antoine Simon",
+        "Camille Michel",
+        "Nicolas Leroy",
+        "Sarah Garnier",
+      ];
+
+      const currencies = ["XAF", "EUR", "USD"];
+      const count = Math.floor(Math.random() * 8) + 5; // Entre 5 et 12 paiements
 
       return Array.from({ length: count }, (_, index) => ({
         id: `PAY-${Date.now()}-${index + 1}`,
         fullName: names[Math.floor(Math.random() * names.length)],
         amount: Math.floor(Math.random() * 900000) + 100000, // Entre 100k et 1M
         currency: currencies[Math.floor(Math.random() * currencies.length)],
-        status: 'pending',
-        date: new Date().toISOString()
-      }))
-    }
-  }
-}
+        status: "pending",
+        date: new Date().toISOString(),
+      }));
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -445,11 +539,12 @@ export default {
   border-radius: 50%;
   display: block;
   stroke-width: 3;
-  stroke: #4CAF50;
+  stroke: #4caf50;
   stroke-miterlimit: 10;
   margin: 0 auto 1.5rem;
-  box-shadow: inset 0 0 0 #4CAF50;
-  animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+  box-shadow: inset 0 0 0 #4caf50;
+  animation: fill 0.4s ease-in-out 0.4s forwards,
+    scale 0.3s ease-in-out 0.9s both;
 }
 
 .checkmark__circle {
@@ -457,16 +552,16 @@ export default {
   stroke-dashoffset: 166;
   stroke-width: 2;
   stroke-miterlimit: 10;
-  stroke: #4CAF50;
+  stroke: #4caf50;
   fill: none;
-  animation: stroke .6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
 
 .checkmark__check {
   transform-origin: 50% 50%;
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
-  animation: stroke .3s cubic-bezier(0.65, 0, 0.45, 1) .8s forwards;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
 }
 
 .download-options {
@@ -528,7 +623,8 @@ export default {
   background-color: #0052a3;
 }
 
-.download-btn, .close-btn {
+.download-btn,
+.close-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -542,9 +638,9 @@ export default {
 }
 
 .download-btn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
-  border: 2px solid #4CAF50;
+  border: 2px solid #4caf50;
 }
 
 .download-btn:hover {
@@ -567,21 +663,36 @@ export default {
 }
 
 @keyframes stroke {
-  100% { stroke-dashoffset: 0; }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes scale {
-  0%, 100% { transform: none; }
-  50% { transform: scale3d(1.1, 1.1, 1); }
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
 }
 
 @keyframes fill {
-  100% { box-shadow: inset 0 0 0 100px rgba(76, 175, 80, 0.1); }
+  100% {
+    box-shadow: inset 0 0 0 100px rgba(76, 175, 80, 0.1);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 /* Styles pour l'état de chargement */
 .upload-loading {
@@ -601,27 +712,30 @@ export default {
   margin: 0 auto 1.5rem;
 }
 
-.double-bounce1, .double-bounce2 {
+.double-bounce1,
+.double-bounce2 {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   opacity: 0.6;
   position: absolute;
   top: 0;
   left: 0;
-  animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2s infinite ease-in-out;
 }
 
 .double-bounce2 {
-  animation-delay: -1.0s;
+  animation-delay: -1s;
 }
 
 @keyframes sk-bounce {
-  0%, 100% { 
-    transform: scale(0.0);
-  } 50% { 
-    transform: scale(1.0);
+  0%,
+  100% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1);
   }
 }
 
@@ -648,7 +762,7 @@ export default {
 
 .progress-bar {
   height: 100%;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   width: 0%;
   transition: width 0.3s ease;
   border-radius: 5px;
@@ -677,7 +791,7 @@ export default {
 }
 
 .modal-container {
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 24px;
   max-width: 650px;
   width: 100%;
@@ -694,7 +808,7 @@ export default {
   width: 40px;
   height: 40px;
   border: none;
-  background: #F5F5F5;
+  background: #f5f5f5;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -705,7 +819,7 @@ export default {
 }
 
 .modal-close:hover {
-  background: #E0E0E0;
+  background: #e0e0e0;
   transform: rotate(90deg);
 }
 
@@ -719,13 +833,13 @@ export default {
 .modal-header {
   text-align: center;
   padding: 30px 25px 20px;
-  border-bottom: 1px solid #E0E0E0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .header-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #00478F 0%, #0066CC 100%);
+  background: linear-gradient(135deg, #00478f 0%, #0066cc 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -738,7 +852,7 @@ export default {
   width: 36px;
   height: 36px;
   stroke-width: 2;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .modal-header h2 {
@@ -762,30 +876,30 @@ export default {
 
 /* Zone d'upload */
 .upload-zone {
-  border: 3px dashed #E0E0E0;
+  border: 3px dashed #e0e0e0;
   border-radius: 16px;
   padding: 30px 15px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
-  background: #FAFAFA;
+  background: #fafafa;
   margin-bottom: 30px;
 }
 
 .upload-zone:hover {
-  border-color: #00478F;
-  background: #F0F7FF;
+  border-color: #00478f;
+  background: #f0f7ff;
 }
 
 .upload-zone.drag-over {
-  border-color: #EAC435;
-  background: #FFFEF0;
+  border-color: #eac435;
+  background: #fffef0;
   transform: scale(1.02);
 }
 
 .upload-zone.has-file {
-  border-color: #00478F;
-  background: #F0F7FF;
+  border-color: #00478f;
+  background: #f0f7ff;
   border-style: solid;
 }
 
@@ -799,7 +913,7 @@ export default {
 .upload-icon {
   width: 80px;
   height: 80px;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -812,7 +926,7 @@ export default {
   width: 36px;
   height: 36px;
   stroke-width: 2;
-  color: #00478F;
+  color: #00478f;
 }
 
 .upload-placeholder h3 {
@@ -840,14 +954,14 @@ export default {
   align-items: center;
   gap: 20px;
   padding: 20px;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 12px;
 }
 
 .file-icon {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #00478F 0%, #0066CC 100%);
+  background: linear-gradient(135deg, #00478f 0%, #0066cc 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -859,7 +973,7 @@ export default {
   width: 30px;
   height: 30px;
   stroke-width: 2;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .file-info {
@@ -887,7 +1001,7 @@ export default {
   width: 40px;
   height: 40px;
   border: none;
-  background: #FEE;
+  background: #fee;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -898,7 +1012,7 @@ export default {
 }
 
 .remove-file:hover {
-  background: #FCC;
+  background: #fcc;
   transform: scale(1.1);
 }
 
@@ -906,12 +1020,12 @@ export default {
   width: 20px;
   height: 20px;
   stroke-width: 2;
-  color: #C33;
+  color: #c33;
 }
 
 /* Informations sur le format */
 .format-info {
-  background: #F0F7FF;
+  background: #f0f7ff;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 30px;
@@ -928,14 +1042,14 @@ export default {
   width: 20px;
   height: 20px;
   stroke-width: 2;
-  color: #00478F;
+  color: #00478f;
   flex-shrink: 0;
 }
 
 .info-header span {
   font-size: 14px;
   font-weight: 600;
-  color: #00478F;
+  color: #00478f;
 }
 
 .format-columns {
@@ -949,15 +1063,15 @@ export default {
   align-items: center;
   gap: 10px;
   padding: 12px;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 8px;
 }
 
 .column-badge {
   width: 28px;
   height: 28px;
-  background: #00478F;
-  color: #FFFFFF;
+  background: #00478f;
+  color: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -975,7 +1089,7 @@ export default {
 
 /* Barre de progression */
 .upload-progress {
-  background: #F5F5F5;
+  background: #f5f5f5;
   border-radius: 12px;
   padding: 20px;
 }
@@ -994,19 +1108,19 @@ export default {
 }
 
 .progress-percentage {
-  color: #00478F !important;
+  color: #00478f !important;
 }
 
 .progress-bar {
   height: 8px;
-  background: #E0E0E0;
+  background: #e0e0e0;
   border-radius: 4px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00478F 0%, #0066CC 50%, #EAC435 100%);
+  background: linear-gradient(90deg, #00478f 0%, #0066cc 50%, #eac435 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
   position: relative;
@@ -1014,19 +1128,28 @@ export default {
 }
 
 .progress-fill::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Footer */
@@ -1035,7 +1158,7 @@ export default {
   bottom: 20px;
   right: 400px; */
   padding: 24px 40px;
-  border-top: 1px solid #E0E0E0;
+  border-top: 1px solid #e0e0e0;
   display: flex;
   gap: 16px;
   justify-content: flex-end;
@@ -1056,17 +1179,17 @@ export default {
 }
 
 .btn-secondary {
-  background: #F5F5F5;
+  background: #f5f5f5;
   color: #000000;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #E0E0E0;
+  background: #e0e0e0;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #00478F 0%, #0066CC 100%);
-  color: #FFFFFF;
+  background: linear-gradient(135deg, #00478f 0%, #0066cc 100%);
+  color: #ffffff;
   box-shadow: 0 4px 15px rgba(0, 71, 143, 0.3);
 }
 
