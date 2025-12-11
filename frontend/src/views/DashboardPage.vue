@@ -30,6 +30,12 @@
       </div>
 
       <div class="header-right">
+        <button class="btn-secondary" @click="$router.push('/history')" style="margin-right: 10px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+             <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Historique
+        </button>
         <button class="btn-upload" @click="showUploadModal = true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -163,12 +169,11 @@
 
       <!-- Statistiques rapides -->
       <div class="quick-stats">
+        <!-- Ligne 1 : Totaux -->
         <div class="stat-card">
           <div class="stat-card-icon blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path
-                d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
-              />
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
           </div>
           <div class="stat-card-content">
@@ -177,6 +182,47 @@
           </div>
         </div>
 
+        <div class="stat-card">
+          <div class="stat-card-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-value">{{ successCount }}</span>
+            <span class="stat-card-label">Transferts Réussis</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-value">{{ failedCount }}</span>
+            <span class="stat-card-label">Transferts Échoués</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-value">{{ rejectedCount }}</span>
+            <span class="stat-card-label">Rejetés</span>
+          </div>
+        </div>
+
+        <!-- Ligne 2 : Taux et Montants -->
         <div class="stat-card">
           <div class="stat-card-icon green">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -189,6 +235,30 @@
           </div>
         </div>
 
+         <div class="stat-card">
+          <div class="stat-card-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-value">{{ failedRate }}%</span>
+            <span class="stat-card-label">Taux d'échec</span>
+          </div>
+        </div>
+
+         <div class="stat-card">
+          <div class="stat-card-icon orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+               <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-value">{{ rejectedRate }}%</span>
+            <span class="stat-card-label">Taux de rejet</span>
+          </div>
+        </div>
+
         <div class="stat-card">
           <div class="stat-card-icon purple">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -197,10 +267,8 @@
             </svg>
           </div>
           <div class="stat-card-content">
-            <span class="stat-card-value">{{
-              formatCurrency(totalAmount)
-            }}</span>
-            <span class="stat-card-label">Montant traité</span>
+            <span class="stat-card-value">{{ formatCurrency(totalAmount) }}</span>
+            <span class="stat-card-label">Montant Total de Base</span>
           </div>
         </div>
 
@@ -286,7 +354,7 @@
           </div>
 
           <!-- ✅ État vide initial -->
-        <div v-if="payments.length === 0" class="empty-state">
+        <!-- <div v-if="payments.length === 0" class="empty-state">
           <div class="empty-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
@@ -303,7 +371,7 @@
             </svg>
             Importer un fichier
           </button>
-        </div>
+        </div> -->
 
           <div v-else class="transactions-table-wrapper">
             <table class="transactions-table">
@@ -519,8 +587,7 @@
     <FileUploadModal
       :show="showUploadModal"
       @close="showUploadModal = false"
-      @file-selected= "handleUploadComplete"
-      @upload-complete="handleUploadComplete"
+      @transfer-finalized="handleTransferFinalized"
     />
 
     <!-- Toast de notification -->
@@ -552,6 +619,12 @@
         <span>{{ toastMessage }}</span>
       </div>
     </transition>
+    <!-- Modal de détails de transaction -->
+    <TransactionDetailsModal
+      :show="showDetailsModal"
+      :transaction="selectedTransaction || {}"
+      @close="showDetailsModal = false"
+    />
   </div>
 </template>
 
@@ -559,12 +632,15 @@
 import FileUploadModal from "@/components/FileUploadModal.vue";
 import PaymentStats from "@/components/PaymentStats.vue";
 import { gsap } from "gsap";
+import api from "@/services/api";
+import TransactionDetailsModal from "@/components/TransactionDetailsModal.vue";
 
 export default {
   name: "DashboardPage",
   components: {
     FileUploadModal,
     PaymentStats,
+    TransactionDetailsModal
   },
   data() {
     return {
@@ -579,6 +655,14 @@ export default {
       balance: 12500000,
       monthlyIncrease: 18500,
       payments: [],
+      selectedFormat: "pdf",
+      
+      // Modal de détails
+      showDetailsModal: false,
+      selectedTransaction: null,
+      
+      // Données de formulaire
+      transferAmount: "",
       selectedPayments: [],
       selectAll: false,
       currentPage: 1,
@@ -601,7 +685,26 @@ export default {
       const completed = this.payments.filter(
         (p) => p.status === "completed"
       ).length;
-      return Math.round((completed / this.payments.length) * 100);
+      return ((completed / this.payments.length) * 100).toFixed(1);
+    },
+    failedRate() {
+      if (this.payments.length === 0) return 0;
+      const failed = this.payments.filter((p) => p.status === "failed").length;
+      return ((failed / this.payments.length) * 100).toFixed(1);
+    },
+    rejectedRate() {
+      if (this.payments.length === 0) return 0;
+      const rejected = this.payments.filter((p) => p.status === "rejected").length;
+      return ((rejected / this.payments.length) * 100).toFixed(1);
+    },
+    successCount() {
+        return this.payments.filter(p => p.status === 'completed').length;
+    },
+    failedCount() {
+        return this.payments.filter(p => p.status === 'failed').length;
+    },
+    rejectedCount() {
+        return this.payments.filter(p => p.status === 'rejected').length;
     },
     totalAmount() {
       return this.payments.reduce((sum, p) => sum + p.amount, 0);
@@ -668,8 +771,9 @@ export default {
       }, 500);
     }
 
-    // Simuler des paiements en cours
-    this.simulateOngoingPayments();
+    // Charger l'historique des paiements depuis le backend
+    // Charger l'historique des paiements depuis le backend
+    // this.loadPaymentsHistory();
 
     // Fermer le menu utilisateur en cliquant ailleurs
     document.addEventListener("click", this.handleClickOutside);
@@ -820,6 +924,7 @@ export default {
         pending: "En attente",
         completed: "Complété",
         failed: "Échoué",
+        rejected: "Rejeté" // ✅ Texte pour les transactions rejetées
       };
       return statusMap[status] || status;
     },
@@ -943,7 +1048,9 @@ export default {
       });
     },
     viewDetails(payment) {
-      this.showToastNotification(`Détails de ${payment.fullName}`, "info");
+      console.log('👁️ Voir détails pour:', payment);
+      this.selectedTransaction = payment;
+      this.showDetailsModal = true;
     },
     downloadReceipt(payment) {
       this.showToastNotification(
@@ -959,6 +1066,208 @@ export default {
       setTimeout(() => {
         this.showToast = false;
       }, 3000);
+    },
+    async loadPaymentsHistory() {
+      try {
+        console.log('🔄 Chargement de l\'historique des paiements...');
+        const batches = await api.getBatches();
+        console.log('📦 Batches reçus du backend:', batches);
+        
+        // Transformer les batches en paiements pour l'affichage
+        const allPayments = [];
+        
+        if (Array.isArray(batches)) {
+          console.log(`📊 Nombre de batches: ${batches.length}`);
+          batches.forEach(batch => {
+            console.log('🔍 Traitement du batch:', batch.batchId || batch.id);
+            if (batch.transactions && Array.isArray(batch.transactions)) {
+              console.log(`  ↳ ${batch.transactions.length} transactions trouvées`);
+              batch.transactions.forEach((transaction, index) => {
+                // La structure réelle du backend : txId, nom_complet, montant, devise, status, processedAt
+                allPayments.push({
+                  id: transaction.mojaloop?.transferId || transaction.txId || `TXN-${index}`,
+                  fullName: transaction.nom_complet || transaction.fullName || transaction.payee?.partyIdInfo?.partyIdentifier || 'Inconnu',
+                  amount: parseFloat(transaction.montant || transaction.amount?.amount || transaction.amount || 0),
+                  currency: transaction.devise || transaction.amount?.currency || transaction.currency || 'XOF',
+                  status: this.mapBackendStatus(transaction.status || transaction.mojaloop?.currentState),
+                  date: transaction.processedAt || transaction.mojaloop?.rawResponse?.initiatedTimestamp || transaction.createdAt || new Date().toISOString(),
+                  batchId: batch.batchId || batch.id,
+                  txId: transaction.txId
+                });
+              });
+            } else {
+              console.log('  ↳ Aucune transaction dans ce batch');
+            }
+            
+            // ✅ TRAITER LES TRANSACTIONS REJETÉES
+            if (batch.rejectedTransactions && Array.isArray(batch.rejectedTransactions)) {
+              console.log(`  ↳ ${batch.rejectedTransactions.length} transactions rejetées`);
+              
+              batch.rejectedTransactions.forEach(rejected => {
+                const rawData = rejected.rawData || {};
+                const reasons = rejected.reasons || [];
+                
+                allPayments.push({
+                  id: `REJECTED-${rejected.lineNumber}-${batch.batchId}`,
+                  fullName: rawData.nom_complet || 'Inconnu',
+                  amount: parseFloat(rawData.montant || 0),
+                  currency: rawData.devise || 'XOF',
+                  status: 'rejected',
+                  date: batch.createdAt || new Date().toISOString(),
+                  batchId: batch.batchId || batch.id,
+                  lineNumber: rejected.lineNumber,
+                  rejectionReasons: reasons.join(', '),
+                  rejected: true
+                });
+              });
+            }
+          });
+        }
+        
+        // Trier par date (plus récent en premier)
+        allPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        this.payments = allPayments;
+        console.log(`✅ ${allPayments.length} paiements chargés`);
+      } catch (error) {
+        console.error('❌ Erreur lors du chargement de l\'historique:', error);
+        this.showToastNotification(
+          'Erreur lors du chargement de l\'historique',
+          'error'
+        );
+      }
+    },
+    mapBackendStatus(status) {
+      // Mapper les statuts backend vers les statuts de paiement
+      const statusMap = {
+        'SUCCESS': 'completed',
+        'COMPLETED': 'completed',
+        'FAILED': 'failed',
+        'REJECTED': 'failed',
+        'PENDING': 'pending',
+        'RUNNING': 'pending',
+        'PROCESSING': 'pending',
+        'rejected': 'rejected' // ✅ Statut pour les transactions rejetées lors de la validation
+      };
+      return statusMap[status] || 'pending';
+    },
+    async loadBatchTransactions(batchId) {
+      try {
+        console.log(`🎯 Chargement des transactions du batch: ${batchId}`);
+        const batch = await api.getBatch(batchId);
+        console.log('📦 Batch reçu:', batch);
+        
+        const newPayments = [];
+        
+        if (batch.transactions && Array.isArray(batch.transactions)) {
+          console.log(`  ↳ ${batch.transactions.length} transactions trouvées`);
+          
+          batch.transactions.forEach(transaction => {
+            // La structure réelle du backend : txId, nom_complet, montant, devise, status, processedAt
+            newPayments.push({
+              id: transaction.mojaloop?.transferId || transaction.txId || `TXN-${Date.now()}-${Math.random()}`,
+              fullName: transaction.nom_complet || transaction.fullName || transaction.payee?.partyIdInfo?.partyIdentifier || 'Inconnu',
+              amount: parseFloat(transaction.montant || transaction.amount?.amount || transaction.amount || 0),
+              currency: transaction.devise || transaction.amount?.currency || transaction.currency || 'XOF',
+              status: this.mapBackendStatus(transaction.status || transaction.mojaloop?.currentState),
+              date: transaction.processedAt || transaction.mojaloop?.rawResponse?.initiatedTimestamp || transaction.createdAt || new Date().toISOString(),
+              batchId: batch.batchId || batch.id,
+              txId: transaction.txId
+            });
+          });
+          
+          // ✅ TRAITER LES TRANSACTIONS REJETÉES (Nouveau Batch)
+          if (batch.rejectedTransactions && Array.isArray(batch.rejectedTransactions)) {
+             console.log(`  ↳ ${batch.rejectedTransactions.length} transactions rejetées dans le nouveau batch`);
+             batch.rejectedTransactions.forEach((rejected, index) => {
+                const rawData = rejected.rawData || {};
+                const reasons = rejected.reasons || [];
+                newPayments.push({
+                   id: `REJ-${batch.batchId?.substring(0,4)}-${rejected.lineNumber || index}`,
+                   fullName: rawData.nom_complet || 'Inconnu',
+                   amount: parseFloat(rawData.montant || 0),
+                   currency: rawData.devise || 'XOF',
+                   status: 'rejected',
+                   date: batch.createdAt || new Date().toISOString(),
+                   batchId: batch.batchId || batch.id,
+                   lineNumber: rejected.lineNumber,
+                   rejectionReasons: reasons.join(', '),
+                   rejected: true
+                });
+             });
+          }
+          
+          // Ajouter les nouvelles transactions au début de la liste (plus récentes en premier)
+          this.payments = [...newPayments, ...this.payments];
+          
+          console.log(`✅ ${newPayments.length} nouvelles transactions ajoutées`);
+          console.log(`📊 Total de paiements: ${this.payments.length}`);
+        } else {
+          console.warn('⚠️ Aucune transaction dans ce batch');
+        }
+        
+        // ✅ AJOUTER LES TRANSACTIONS REJETÉES
+        if (batch.rejectedTransactions && Array.isArray(batch.rejectedTransactions)) {
+          console.log(`  ↳ ${batch.rejectedTransactions.length} transactions rejetées`);
+          
+          batch.rejectedTransactions.forEach(rejected => {
+            const rawData = rejected.rawData || {};
+            const reasons = rejected.reasons || [];
+            
+            newPayments.push({
+              id: `REJECTED-${rejected.lineNumber}-${Date.now()}`,
+              fullName: rawData.nom_complet || 'Inconnu',
+              amount: parseFloat(rawData.montant || 0),
+              currency: rawData.devise || 'XOF',
+              status: 'rejected', // ✅ Statut spécial pour les transactions rejetées
+              date: batch.createdAt || new Date().toISOString(),
+              batchId: batch.batchId || batch.id,
+              lineNumber: rejected.lineNumber,
+              rejectionReasons: reasons.join(', '), // Raisons du rejet
+              rejected: true
+            });
+          });
+          
+          // Mettre à jour la liste avec les transactions rejetées aussi
+          this.payments = [...newPayments, ...this.payments];
+          
+          console.log(`⚠️ ${batch.rejectedTransactions.length} transactions rejetées ajoutées`);
+        }
+      } catch (error) {
+        console.error('❌ Erreur lors du chargement du batch:', error);
+        this.showToastNotification(
+          'Erreur lors du chargement des transactions',
+          'error'
+        );
+      }
+    },
+    mapTransactionStatus(status) {
+      // Mapper les statuts de transaction vers les statuts de paiement
+      const statusMap = {
+        'COMPLETED': 'completed',
+        'PENDING': 'pending',
+        'FAILED': 'failed',
+        'REJECTED': 'failed',
+        'RUNNING': 'pending',
+        'PROCESSING': 'pending'
+      };
+      return statusMap[status] || 'pending';
+    },
+    handleTransferFinalized(data) {
+      console.log('🎉 Transfert finalisé, chargement des nouvelles transactions...', data);
+      
+      // 🎯 Charger uniquement les transactions du batch qui vient de se terminer
+      if (data.batchId) {
+        this.loadBatchTransactions(data.batchId);
+        
+        // Afficher une notification
+        this.showToastNotification(
+          'Nouvelles transactions ajoutées à l\'historique',
+          'success'
+        );
+      } else {
+        console.warn('⚠️ Pas de batchId dans les données reçues');
+      }
     },
   },
 };
@@ -1082,6 +1391,32 @@ export default {
   width: 20px;
   height: 20px;
   stroke-width: 2.5;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-secondary svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
 }
 
 /* Menu utilisateur */
@@ -1478,6 +1813,11 @@ export default {
   color: var(--warning-orange);
 }
 
+.stat-card-icon.red {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
 .stat-card-icon svg {
   width: 28px;
   height: 28px;
@@ -1858,6 +2198,12 @@ export default {
 .status-badge.failed {
   background: rgba(239, 68, 68, 0.1);
   color: var(--danger-red);
+}
+
+.status-badge.rejected {
+  background: rgba(251, 146, 60, 0.1);
+  color: #ea580c;
+  border: 1px solid rgba(251, 146, 60, 0.3);
 }
 
 .status-dot {

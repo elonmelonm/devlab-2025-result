@@ -26,7 +26,73 @@
       </div>
     </div>
 
-    <div class="filters-section">
+    <!-- Section: Liste des rapports (Batches) -->
+    <div v-if="!batchFilterActive" class="batches-container">
+       <div v-if="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement des rapports...</p>
+      </div>
+      
+      <div v-else-if="batches.length === 0" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+           <polyline points="14 2 14 8 20 8" />
+           <line x1="16" y1="13" x2="8" y2="13" />
+           <line x1="16" y1="17" x2="8" y2="17" />
+           <polyline points="10 9 9 9 8 9" />
+        </svg>
+        <h3>Aucun rapport trouvé</h3>
+        <p>Aucun fichier n'a été traité pour le moment.</p>
+      </div>
+
+      <div v-else class="transactions-table-wrapper">
+         <table class="transactions-table">
+            <thead>
+              <tr>
+                <th>ID du Rapport</th>
+                <th>Date</th>
+                <th>Fichier source</th>
+                <th>Transactions</th>
+                <th>Montant Total</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="batch in batches" :key="batch.batchId" @click="selectBatch(batch.batchId)" class="clickable-row">
+                 <td class="id-cell">#{{ batch.batchId.substring(0, 8) }}...</td>
+                 <td>{{ formatDate(batch.createdAt) }}</td>
+                 <td>{{ batch.inputFileName || 'N/A' }}</td>
+                 <td>
+                    <div class="batch-stats">
+                        <span class="success-count" title="Validées">{{ batch.transactions?.length || 0 }}</span> / 
+                        <span class="rejected-count" title="Rejetées">{{ batch.rejectedTransactions?.length || 0 }}</span>
+                    </div>
+                 </td>
+                 <td>
+                    <strong>{{ formatCurrency(getBatchTotal(batch)) }}</strong>
+                 </td>
+                 <td>
+                    <span class="status-badge" :class="getBatchStatusClass(batch.status)">
+                        {{ getBatchStatusText(batch.status) }}
+                    </span>
+                 </td>
+                 <td class="actions-cell">
+                    <button class="btn-icon" @click.stop="selectBatch(batch.batchId)" title="Voir les transactions">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                           <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </button>
+                 </td>
+              </tr>
+            </tbody>
+         </table>
+      </div>
+    </div>
+
+    <!-- Section: Liste des transactions (Filtres et Tableau existants) -->
+    <div v-else class="filters-section">
       <div class="search-box">
         <input 
           type="text" 
@@ -45,6 +111,7 @@
           <option value="completed">Complété</option>
           <option value="pending">En attente</option>
           <option value="failed">Échoué</option>
+          <option value="rejected">Rejeté</option>
         </select>
 
         <select v-model="filterCurrency" class="filter-select">
@@ -54,24 +121,17 @@
           <option value="USD">USD</option>
         </select>
 
-        <select v-model="filterPeriod" class="filter-select">
-          <option value="">Toutes les périodes</option>
-          <option value="today">Aujourd'hui</option>
-          <option value="week">Cette semaine</option>
-          <option value="month">Ce mois</option>
-        </select>
-
         <button class="btn btn-secondary" @click="resetFilters">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <polyline points="1 4 1 10 7 10" />
             <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
           </svg>
-          Réinitialiser
+          Réinitialiser le filtre
         </button>
       </div>
     </div>
 
-    <div class="transactions-container">
+    <div v-if="batchFilterActive" class="transactions-container">
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
         <p>Chargement des transactions...</p>
@@ -93,7 +153,7 @@
           </div>
           <div class="summary-item">
             <span>Montant total</span>
-            <strong>{{ formatCurrency(totalAmount) }}</strong>
+            <strong>{{ formatCurrency(filteredTotalAmount) }}</strong>
           </div>
           <div class="summary-item">
             <span>Taux de succès</span>
@@ -105,7 +165,6 @@
           <table class="transactions-table">
             <thead>
               <tr>
-                <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
                 <th>ID</th>
                 <th>Bénéficiaire</th>
                 <th>Montant</th>
@@ -116,17 +175,15 @@
             </thead>
             <tbody>
               <tr v-for="payment in paginatedPayments" :key="payment.id" :class="`status-${payment.status}`">
-                <td><input type="checkbox" v-model="selectedPayments" :value="payment.id" /></td>
                 <td class="id-cell">
-                  <span class="id-prefix">#{{ payment.id.toString().substring(0, 8) }}</span>
+                  <span class="id-prefix">#{{ payment.id?.toString().substring(0, 8) }}</span>
                 </td>
                 <td class="recipient-cell">
                   <div class="recipient-avatar">
-                    {{ getInitials(payment.recipient) }}
+                    {{ getInitials(payment.fullName || payment.recipient || 'Unknown') }}
                   </div>
                   <div class="recipient-info">
-                    <div class="recipient-name">{{ payment.recipient }}</div>
-                    <div class="recipient-reference">{{ payment.reference || 'Sans référence' }}</div>
+                    <div class="recipient-name">{{ payment.fullName || payment.recipient }}</div>
                   </div>
                 </td>
                 <td>
@@ -144,13 +201,6 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                       <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                  <button class="btn-icon" @click="downloadReceipt(payment)" title="Télécharger le reçu">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
                   </button>
                 </td>
@@ -203,6 +253,13 @@
         </div>
       </div>
     </div>
+    
+    <!-- Modal Details -->
+    <TransactionDetailsModal
+      :show="showDetailsModal"
+      :transaction="selectedTransaction || {}"
+      @close="showDetailsModal = false"
+    />
   </div>
 </template>
 
@@ -210,15 +267,20 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '@/services/api';
+import TransactionDetailsModal from "@/components/TransactionDetailsModal.vue";
 
 export default {
   name: 'HistoryPage',
+  components: {
+    TransactionDetailsModal
+  },
   
   setup() {
     const router = useRouter();
     const route = useRoute();
     
     // État réactif
+    const batches = ref([]);
     const payments = ref([]);
     const loading = ref(true);
     const searchQuery = ref('');
@@ -232,43 +294,108 @@ export default {
     const batchId = ref(route.query.batchId || '');
     const batchFilterActive = ref(!!route.query.batchId);
 
-    // Charger les paiements depuis l'API
-    const loadPayments = async () => {
+    // Modal
+    const showDetailsModal = ref(false);
+    const selectedTransaction = ref(null);
+
+    // Charger les données (Batches ou Paiements d'un batch)
+    const loadData = async () => {
       try {
         loading.value = true;
         
         if (batchId.value) {
           // Charger un batch spécifique
-          const response = await api.get(`/api/batches/${batchId.value}`);
-          if (response.data && response.data.payments) {
-            payments.value = response.data.payments;
+          const batch = await api.getBatch(batchId.value);
+          
+          if (batch) {
+             // Mapper les transactions validées
+             const validTxns = (batch.transactions || []).map((tx, index) => ({
+                id: tx.txId || tx.transferId || `TXN-${index}`,
+                // Essayer plusieurs chemins pour trouver le nom (priorité aux champs francisés du backend)
+                fullName: tx.nom_complet || tx.metadata?.nom_complet || tx.payee?.partyIdInfo?.partyIdentifier || tx.firstName || 'Inconnu',
+                // Montant peut être un objet ou une valeur directe
+                amount: parseFloat(tx.montant || tx.amount?.amount || tx.amount || 0),
+                currency: tx.devise || tx.amount?.currency || tx.currency || 'XOF',
+                status: (() => {
+                    const s = (tx.status || '').toString().toLowerCase();
+                    if (s === 'completed' || s === 'success') return 'completed';
+                    if (s === 'failed' || s === 'failure') return 'failed';
+                    if (s === 'rejected') return 'rejected';
+                    if (s === 'pending') return 'pending';
+                    return tx.status || 'unknown'; // Retourne le statut brut si non reconnu
+                })(),
+                date: tx.processedAt || tx.completedTimestamp || batch.createdAt,
+                batchId: batch.batchId,
+                // Conserver d'autres infos utiles pour le modal
+                rejectionReasons: tx.errorDescription || null,
+                ...tx
+             }));
+
+             // Mapper les transactions rejetées
+             const rejectedTxns = (batch.rejectedTransactions || []).map((t, index) => ({
+                id: `REJ-${batch.batchId?.substring(0,4)}-${t.lineNumber || index}`,
+                fullName: t.rawData?.nom_complet || 'Inconnu',
+                amount: parseFloat(t.rawData?.montant || 0),
+                currency: t.rawData?.devise || 'N/A',
+                date: batch.createdAt,
+                status: 'rejected',
+                rejectionReasons: t.reasons ? t.reasons.join(', ') : 'Raison inconnue',
+                batchId: batch.batchId
+             }));
+             
+             payments.value = [...validTxns, ...rejectedTxns];
           }
         } else {
-          // Charger tous les paiements
-          const response = await api.get('/api/batches');
-          // Aplatir tous les paiements de tous les batches
-          payments.value = response.data.reduce((acc, batch) => {
-            return [...acc, ...(batch.payments || [])];
-          }, []);
+          // Charger la liste des batches pour l'historique par rapport
+          const data = await api.getBatches();
+          if (data) {
+             batches.value = data;
+          }
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des transactions:', error);
-        // En cas d'erreur, charger des données de démonstration
-        payments.value = [
-          {
-            id: 'txn_12345678',
-            recipient: 'John Doe',
-            reference: 'FACT-2023-001',
-            amount: 150000,
-            currency: 'XOF',
-            date: '2023-11-15T10:30:00Z',
-            status: 'completed',
-            batchId: batchId.value || 'batch_123'
-          },
-        ];
+        console.error('Erreur lors du chargement:', error);
       } finally {
         loading.value = false;
       }
+    };
+    
+    const selectBatch = (id) => {
+        router.push({ name: 'History', query: { batchId: id } });
+    };
+
+    const viewDetails = (payment) => {
+        selectedTransaction.value = payment;
+        showDetailsModal.value = true;
+    };
+    
+    // --- Utils pour Batches ---
+    const getBatchTotal = (batch) => {
+        // Priorité au résumé calculé par le backend
+        if (batch.summary && batch.summary.totalAmount !== undefined) {
+            return parseFloat(batch.summary.totalAmount);
+        }
+        // Sinon calcul manuel sur les transactions validées
+        return (batch.transactions || []).reduce((sum, t) => {
+            const val = parseFloat(t.montant || t.amount?.amount || t.amount || 0);
+            return sum + (isNaN(val) ? 0 : val);
+        }, 0);
+    };
+
+    const getBatchStatusText = (status) => {
+        const map = {
+            'COMPLETED': 'Terminé',
+            'COMPLETED_WITH_ERRORS': 'Terminé avec erreurs',
+            'RUNNING': 'En cours',
+            'UPLOADED': 'Téléchargé',
+            'VALIDATED': 'Validé'
+        };
+        return map[status] || status;
+    };
+
+    const getBatchStatusClass = (status) => {
+         return status === 'COMPLETED' ? 'completed' : 
+                status === 'COMPLETED_WITH_ERRORS' ? 'warning' : 
+                status === 'RUNNING' ? 'pending' : 'failed';
     };
     
     // Réinitialiser les filtres et recharger les données
@@ -279,13 +406,13 @@ export default {
       filterPeriod.value = '';
       currentPage.value = 1;
       
-      // Si on était en mode filtre par batch, on revient à la vue complète
+      // Si on était en mode filtre par batch, on revient à la vue complète (Liste des rapports)
       if (batchFilterActive.value) {
-        batchFilterActive.value = false;
         batchId.value = '';
+        batchFilterActive.value = false;
         router.push({ name: 'History' });
       } else {
-        loadPayments();
+        loadData();
       }
     };
 
@@ -391,11 +518,11 @@ export default {
       if (newQuery.batchId && newQuery.batchId !== batchId.value) {
         batchId.value = newQuery.batchId;
         batchFilterActive.value = true;
-        loadPayments();
+        loadData();
       } else if (!newQuery.batchId && batchFilterActive.value) {
         batchId.value = '';
         batchFilterActive.value = false;
-        loadPayments();
+        loadData();
       }
     });
 
@@ -406,7 +533,7 @@ export default {
         batchId.value = route.query.batchId;
         batchFilterActive.value = true;
       }
-      loadPayments();
+      loadData();
     });
 
     // Retourner toutes les propriétés et méthodes nécessaires au template
@@ -440,6 +567,31 @@ export default {
       totalAmount: computed(() => {
         return filteredPayments.value.reduce((sum, p) => sum + (p.amount || 0), 0);
       }),
+      filteredTotalAmount: computed(() => {
+        return filteredPayments.value.reduce((sum, p) => sum + (p.amount || 0), 0);
+      }),
+      batches,
+      selectBatch,
+      getBatchTotal,
+      getBatchStatusText,
+      getBatchStatusClass,
+      showDetailsModal,
+      selectedTransaction,
+      viewDetails,
+      getInitials: (name) => {
+          if (!name) return '?';
+          return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      },
+      getStatusText: (status) => {
+        const map = {
+            'completed': 'Complété',
+            'success': 'Complété',
+            'pending': 'En attente',
+            'failed': 'Échoué',
+            'rejected': 'Rejeté'
+        };
+        return map[status] || status;
+      },
     };
   }
 };
@@ -716,9 +868,22 @@ tbody tr:hover {
   font-weight: 500;
 }
 
-.status-badge.completed {
+.status-badge.completed,
+.status-badge.success,
+.status-badge.SUCCESS {
   background-color: #dcfce7;
   color: #166534;
+}
+
+.status-badge.unknown {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+}
+
+.status-badge.warning {
+  background-color: #fef9c3;
+  color: #854d0e;
 }
 
 .status-badge.pending {
@@ -729,6 +894,12 @@ tbody tr:hover {
 .status-badge.failed {
   background-color: #fee2e2;
   color: #991b1b;
+}
+
+.status-badge.rejected {
+  background-color: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
 }
 
 .actions-cell {

@@ -208,7 +208,7 @@ export default {
       default: false,
     },
   },
-  emits: ["close", "upload-complete", "upload-success", "upload-error"],
+  emits: ["close", "upload-complete", "upload-success", "upload-error", "transfer-finalized"],
   data() {
     return {
       showHeader: true,
@@ -231,6 +231,7 @@ export default {
         // { value: "json", label: "JSON" },
       ],
       completedBatchData: null, // ✅ Pour stocker les données du batch complété
+      transferFinalizedEmitted: false, // 🎯 Flag pour éviter la double émission
     };
   },
   methods: {
@@ -245,12 +246,14 @@ export default {
           this.pollingInterval = null;
         }
 
-        // ✅ ENVOYER LES DONNÉES AVANT DE FERMER
-        if (this.transferCompleted && this.batchId) {
+        // ✅ ENVOYER LES DONNÉES AVANT DE FERMER (si pas déjà fait)
+        if (this.transferCompleted && this.batchId && !this.transferFinalizedEmitted) {
+          console.log("📤 Émission de 'transfer-finalized' à la fermeture du modal");
           this.$emit('transfer-finalized', {
             batchId: this.batchId,
-            shouldLoadHistory: true // Flag pour indiquer qu'il faut charger l'historique
+            shouldLoadHistory: true
           });
+          this.transferFinalizedEmitted = true;
         }
 
         this.resetModalState();
@@ -267,6 +270,7 @@ export default {
       this.showError = false;
       this.uploadError = null;
       this.showHeader = true;
+      this.transferFinalizedEmitted = false; // 🎯 Réinitialiser le flag
     },
     downloadReport() {
       if (!this.batchId) {
@@ -459,6 +463,16 @@ export default {
           if (status === "COMPLETED") {
             this.$emit("upload-success", normalizedData);
           }
+
+          // 🎯 ÉMETTRE L'ÉVÉNEMENT IMMÉDIATEMENT POUR RAFRAÎCHIR LE DASHBOARD
+          console.log("🎉 Émission de 'transfer-finalized' pour rafraîchir le dashboard");
+          this.$emit('transfer-finalized', {
+            batchId: this.batchId,
+            status: status,
+            batchData: normalizedData,
+            shouldLoadHistory: true
+          });
+          this.transferFinalizedEmitted = true; // 🎯 Marquer comme émis
         }
 
       } catch (error) {

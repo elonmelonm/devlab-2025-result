@@ -36,55 +36,15 @@ module.exports = {
     getBatch: async (req, res) => {
         try {
             const { batchId } = req.params;
+            console.log('🔍 Récupération du batch (via service):', batchId);
 
-            // ✅ CORRECTION : Utiliser le même chemin que batch.service.js
-            const batchDir = path.join(__dirname, '../data/reports', batchId);
-            const resultPath = path.join(batchDir, 'batch.result.json');
-            const initialPath = path.join(batchDir, 'batch.initial.json');
-            const progressPath = path.join(batchDir, 'batch.progress.json');
+            const batch = await batchService.getBatch(batchId);
 
-            console.log('🔍 Recherche du batch:', batchId);
-            console.log('📁 Chemin:', batchDir);
-            console.log('📄 Existe?', fs.existsSync(batchDir));
-
-            if (!fs.existsSync(batchDir)) {
-                console.error('❌ Dossier batch introuvable:', batchDir);
+            if (!batch) {
                 return res.status(404).json({ error: "Batch not found" });
             }
 
-            let batch;
-
-            // Vérifier si le traitement est terminé
-            if (fs.existsSync(resultPath)) {
-                console.log('✅ Fichier result trouvé');
-                const data = fs.readFileSync(resultPath, 'utf8');
-                batch = JSON.parse(data);
-
-                if (batch.status === 'COMPLETED' || batch.status === 'COMPLETED_WITH_ERRORS') {
-                    batch.reportUrl = `/api/batches/${batchId}/report`;
-                }
-            }
-            // Vérifier si le traitement est en cours
-            else if (fs.existsSync(progressPath)) {
-                console.log('⏳ Fichier progress trouvé');
-                const data = fs.readFileSync(progressPath, 'utf8');
-                batch = JSON.parse(data);
-                batch.status = 'RUNNING';
-            }
-            // Sinon, récupérer le batch initial
-            else if (fs.existsSync(initialPath)) {
-                console.log('📋 Fichier initial trouvé');
-                const data = fs.readFileSync(initialPath, 'utf8');
-                batch = JSON.parse(data);
-            }
-            else {
-                console.error('❌ Aucun fichier de données trouvé');
-                return res.status(404).json({ error: "Batch data not found" });
-            }
-
-            console.log('✅ Batch trouvé, statut:', batch.status);
             return res.json(batch);
-
         } catch (error) {
             console.error('❌ Error in getBatch:', error);
             res.status(500).json({

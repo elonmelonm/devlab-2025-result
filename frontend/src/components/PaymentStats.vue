@@ -200,6 +200,24 @@
           </div>
           <div class="status-percentage">{{ ((failedPayments / totalTransactions) * 100).toFixed(1) }}%</div>
         </div>
+
+        <div class="status-item rejected">
+          <div class="status-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <div class="status-details">
+            <span class="status-count">{{ rejectedPayments }}</span>
+            <span class="status-label">Rejetés</span>
+            <div class="status-bar">
+              <div class="status-bar-fill" :style="{ width: (rejectedPayments / totalTransactions * 100) + '%' }"></div>
+            </div>
+          </div>
+          <div class="status-percentage">{{ ((rejectedPayments / totalTransactions) * 100).toFixed(1) }}%</div>
+        </div>
       </div>
     </div>
 
@@ -374,6 +392,9 @@ export default {
     },
     failedPayments() {
       return this.payments.filter(p => p.status === 'failed').length
+    },
+    rejectedPayments() {
+      return this.payments.filter(p => p.status === 'rejected').length
     },
     averageAmount() {
       return this.totalTransactions > 0 ? this.totalAmount / this.totalTransactions : 0
@@ -727,6 +748,10 @@ export default {
   background: linear-gradient(135deg, #FEE2E2 0%, #FEF2F2 100%);
 }
 
+.status-item.rejected {
+  background: linear-gradient(135deg, #FFEDD5 0%, #FFF7ED 100%);
+}
+
 .status-item:hover {
   transform: translateX(8px);
 }
@@ -751,6 +776,10 @@ export default {
 
 .status-item.failed .status-icon {
   background: #EF4444;
+}
+
+.status-item.rejected .status-icon {
+  background: #EA580C;
 }
 
 .status-icon svg {
@@ -798,6 +827,10 @@ export default {
 
 .status-item.completed .status-bar-fill {
   background: #10B981;
+}
+
+.status-item.rejected .status-bar-fill {
+  background: #EA580C;
 }
 
 .status-item.pending .status-bar-fill {

@@ -234,7 +234,7 @@ module.exports = {
 
         return cleanedBatch;
     },
-    
+
     // ════════════════════════════════════════════════════════════
     // 3. PROCESS BATCH (Étape 3 - Traitement Mojaloop)
     // ════════════════════════════════════════════════════════════
@@ -345,10 +345,35 @@ module.exports = {
                 status = "UPLOADED";
             }
 
+            // ✅ RETOURNER LES TRANSACTIONS COMPLÈTES + REJETÉES
+            const rejectedPath = path.join(batchDir, 'batch.rejected.json');
+            let rejectedTransactions = [];
+
+            if (fs.existsSync(rejectedPath)) {
+                const rejectedData = JSON.parse(fs.readFileSync(rejectedPath));
+                rejectedTransactions = rejectedData.rejectedTransactions || [];
+            }
+
+            // Calculer les stats d'exécution
+            const validTxns = batchData?.transactions || [];
+            const totalTransfers = validTxns.length;
+            const successfulTransfers = validTxns.filter(t => t.status === 'SUCCESS').length;
+            const executionRate = totalTransfers > 0
+                ? ((successfulTransfers / totalTransfers) * 100).toFixed(2)
+                : '0.00';
+
             return {
                 batchId: batchData?.batchId || dir,
                 createdAt: batchData?.createdAt || null,
-                status
+                status,
+                summary: {
+                    ...(batchData?.summary || {}),
+                    transfersCount: totalTransfers,
+                    executionRate: executionRate + '%'
+                },
+                transactions: validTxns, // ✅ Transactions validées et traitées
+                rejectedTransactions: rejectedTransactions, // ✅ Transactions rejetées lors de la validation
+                inputFileName: batchData?.inputFileName || null
             };
         });
     },
@@ -379,40 +404,43 @@ module.exports = {
             status = "UPLOADED";
         }
 
+        // Calculer les stats d'exécution pour le détail
+        const validTxns = batchData.transactions || [];
+        const totalTransfers = validTxns.length;
+        const successfulTransfers = validTxns.filter(t => t.status === 'SUCCESS').length;
+        const executionRate = totalTransfers > 0
+            ? ((successfulTransfers / totalTransfers) * 100).toFixed(2)
+            : '0.00';
+
         // Normalisation des données
         const normalizedData = {
             batchId: batchData.batchId || batchId,
             status: status,
             createdAt: batchData.createdAt || new Date().toISOString(),
-            summary: batchData.summary || {},
-            payments: [], // Toujours retourner un tableau
-            rejectedPayments: [], // Toujours retourner un tableau
-            reportUrl: batchData.reportUrl || null
+            summary: {
+                ...(batchData.summary || {}),
+                transfersCount: totalTransfers,
+                executionRate: executionRate + '%'
+            },
+            transactions: validTxns, // ✅ Transactions validées et traitées
+            rejectedTransactions: [], // ✅ Transactions rejetées lors de la validation
+            reportUrl: batchData.reportUrl || null,
+            inputFileName: batchData.inputFileName || null
         };
-
-        // Ajouter les transactions selon le type de batch
-        if (batchData.transactions) {
-            normalizedData.payments = batchData.transactions.map(tx => ({
-                ...tx,
-                amount: tx.montant, // Standardiser le nom
-                currency: tx.devise,
-                idType: tx.type_id,
-                idValue: tx.valeur_id,
-                fullName: tx.nom_complet
-            }));
-        } else if (batchData.transactions) {
-            normalizedData.payments = batchData.transactions;
-        }
 
         // Ajouter les transactions rejetées si disponibles
         if (fs.existsSync(rejectedPath)) {
+            console.log(`[DEBUG] batch.rejected.json found for ${batchId}`);
             const rejectedData = JSON.parse(fs.readFileSync(rejectedPath));
-            normalizedData.rejectedPayments = rejectedData.rejectedTransactions || [];
+            console.log(`[DEBUG] rejectedTransactions count: ${rejectedData.rejectedTransactions?.length}`);
+            normalizedData.rejectedTransactions = rejectedData.rejectedTransactions || [];
+        } else {
+            console.log(`[DEBUG] batch.rejected.json NOT found for ${batchId} at ${rejectedPath}`);
         }
 
         return normalizedData;
     }
-,
+    ,
 
     // ════════════════════════════════════════════════════════════
     // 6. RETRY FAILED
